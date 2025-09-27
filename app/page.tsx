@@ -1,24 +1,20 @@
 "use client";
-import Image from "next/image";
 import { Modal } from "./components/modal/Modal";
 import { useState } from "react";
+import { IoSettingsOutline } from "react-icons/io5";
 export default function Home() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	return (
 		<div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg.png)] bg-cover bg-center">
-			<header className="space-x-80px flex flex-col jus">
-				
-        <p>Cinedle</p>
-				<button
-					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors"
-					onClick={() => {
-						setIsModalOpen(true);
-					}}
-				>
-					{" "}
-					Configurações{" "}
-				</button>
+			<header className="relative w-full py-4">
+				<p className="text-white text-2xl font-bold text-center">Cinedle</p>
+
+				<IoSettingsOutline
+					size={40}
+					className="absolute right-140 top-1/2 -translate-y-1/2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors cursor-pointer"
+					onClick={() => setIsModalOpen(true)}
+				/>
 			</header>
 
 			<Modal

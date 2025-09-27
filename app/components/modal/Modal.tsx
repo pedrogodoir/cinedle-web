@@ -1,3 +1,4 @@
+import { FaXmark } from "react-icons/fa6";
 export const Modal = ({
 	isOpen,
 	onClose,
@@ -16,12 +17,12 @@ export const Modal = ({
 					
 					<button 
 						onClick={onClose} 
-						className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+						className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
 					>
-						X
+						<FaXmark size={25}/>
 					</button>
 
-					<h1 className="text-black">Cnnfigurações</h1>
+					<h1 className="text-black">Configurações</h1>
 					<div className="flex flex-col gap-4 mt-4">
 						<div className="flex items-center gap-3">
 							<div className="relative inline-block w-11 h-5">
@@ -57,9 +58,7 @@ export const Modal = ({
 								<p className="font-medium">Dark mode</p>
 							</label>
 						</div>
-					</div>
-
-		
+					</div>		
 					<div className="mt-6">{children}</div>
 				</div>
 			</div>
