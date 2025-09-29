@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Modal } from "./components/modal/Modal";
 import { useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -27,12 +28,12 @@ export default function Home() {
 			</Modal>
 
 			<div className="flex items-center justify-center flex-1 gap-10 text-center">
-				<div className="flex flex-col items-start bg-red-500 h-72 w-56 rounded-4xl shadow-xl p-4 gap-2 cursor-pointer hover:scale-105 transition-transform">
+				<Link href={"/classic"} className="flex flex-col text-white items-start bg-red-500 h-72 w-56 rounded-4xl shadow-xl p-4 gap-2 cursor-pointer hover:scale-105 transition-transform">
 					<h1 className="text-3xl font-extrabold">Classico</h1>
 					<p>lorem ipsum</p>
-				</div>
+				</Link>
 
-				<div className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 gap-2 cursor-pointer hover:scale-105 transition-transform">
+				<div className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 text-white gap-2 cursor-pointer hover:scale-105 transition-transform">
 					<h1 className="text-3xl font-extrabold">Poster</h1>
 					<p>lorem ipsum</p>
 				</div>
