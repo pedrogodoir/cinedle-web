@@ -76,27 +76,61 @@ export default function Classic() {
           </Button>
         </div>
 
-        <Table>
+        <Table className="bg-zinc-950">
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Genre(s)</TableHead>
               <TableHead>Main Actor</TableHead>
               <TableHead>Director(s)</TableHead>
-              <TableHead>Comapnies</TableHead>
+              <TableHead>Companies</TableHead>
               <TableHead>Budget</TableHead>
               <TableHead>Realease</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>INV001</TableCell>
-              <TableCell>Paid</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell>$250.00</TableCell>
-              <TableCell>$250.00</TableCell>
-              <TableCell>$250.00</TableCell>
-              <TableCell>$250.00</TableCell>
+            <TableRow className="gap-2 p-2">
+              <TableCell>
+                <div className="m-2 bg-red-500 h-full">
+                  <div className="bg-red-500 rounded-md h-full">
+                    <p>Inception</p>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col bg-yellow-500 rounded-md">
+                  <p>Action</p>
+                  <p>Adventure</p>
+                  <p>Fiction</p>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col bg-red-500 rounded-md">
+                  <p>Leonardo Dicaprio</p>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col bg-green-500 rounded-md">
+                  <p>Christopher Nolan</p>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col bg-yellow-500 rounded-md">
+                  <p>Warner Bros. Pictures</p>
+                  <p>Syncopy</p>
+                  <p>Legendary Pictures</p>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col bg-yellow-500 rounded-md">
+                  <p>1600000.00</p>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col bg-yellow-500 rounded-md">
+                  <p>15/07/2010</p>
+                </div>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
