@@ -2,76 +2,99 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import axios from "axios";
-import { ChevronRight, ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+type MovieResult = {
+  id: string;
+  title: string;
+};
+
+type Guess = {
+  id: number;
+  title: string;
+  releaseDate: string;
+  budget: string;
+  genres: { id: number; name: string }[];
+  companies: { id: number; name: string }[];
+  directors: { id: number; name: string }[];
+  actors: { id: number; name: string }[];
+};
+
 export default function Classic() {
-  const [inputValue, setInputValue] = useState("");
-  const [results, setResults] = useState<{ id: string; title: string }[]>([]);
-  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState(""); 
+  const [results, setResults] = useState<MovieResult[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
+  const [guesses, setGuesses] = useState<Guess[]>([]);
 
   useEffect(() => {
-    if (!inputValue) {
+    if (!search) {
       setResults([]);
       return;
     }
     const handler = setTimeout(() => {
       const fetchData = async () => {
         try {
-          const res = await axios.get(`https://cinedle-backend.onrender.com/movies/summary/${inputValue}`);
+          const res = await axios.get(`https://cinedle-backend.onrender.com/movies/summary/${search}`);
           setResults(Array.isArray(res.data) ? res.data : []);
-          console.log(res.data);
         } catch {
           setResults([]);
         }
       };
       fetchData();
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(handler);
-  }, [inputValue]);
+  }, [search]);
 
-  useEffect(() => {
-    if (inputValue && results.length > 0) {
-      setOpen(true);
-    } else {
-      setOpen(false);
+  const handleSelectMovie = (movie: MovieResult) => {
+    setSelectedMovie(movie);
+    setSearch("");
+    setResults([]);
+  };
+
+  const handleSubmitGuess = async () => {
+    if (!selectedMovie) return;
+    try {
+      const res = await axios.get(`https://cinedle-backend.onrender.com/movies/${selectedMovie.id}`);
+      setGuesses(prevGuesses => [res.data, ...prevGuesses]);
+      setSelectedMovie(null);
+    } catch (error) {
+      console.error("Failed to fetch movie details:", error);
     }
-  }, [inputValue, results]);
+  };
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-cover bg-center">
-      <header className="text-white text-5xl font-extrabold ">
-        Cinedle
-      </header>
+      <header className="text-white text-5xl font-extrabold">Cinedle</header>
       <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
         <div className="flex items-center justify-center gap-6">
           <div className="relative w-72">
             <Input
-              value={inputValue}
-              onChange={e => setInputValue(e.target.value)}
+              value={selectedMovie ? selectedMovie.title : search}
+              onChange={e => {
+                if (selectedMovie) {
+                  setSelectedMovie(null);
+                }
+                setSearch(e.target.value);
+              }}
               className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-2xl text-white w-full"
               placeholder="Inception"
               type="text"
             />
-            {inputValue && (
+            {search && results.length > 0 && (
               <div className="absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700">
-                {results.length === 0 ? (
-                  <div className="p-4 text-white text-center">Nenhum resultado</div>
-                ) : (
-                  results.map(item => (
-                    <div key={item.id} className=" flex flex-col justify-end text-white hover:bg-zinc-800 hover:rounded-md align-baseline text-left p-2 cursor-pointer">
-                      <p className="text-white">{item.title}</p>
-                    </div>
-                  ))
-                )}
+                {results.map(item => (
+                  <div key={item.id} onClick={() => handleSelectMovie(item)} className="text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer">
+                    <p>{item.title}</p>
+                  </div>
+                ))}
               </div>
             )}
           </div>
-
-          <Button className="bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform" size={"icon"}>
+          <Button onClick={handleSubmitGuess} disabled={!selectedMovie} className="bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed" size={"icon"}>
             <ChevronRightIcon size={40} />
           </Button>
         </div>
@@ -85,53 +108,21 @@ export default function Classic() {
               <TableHead>Director(s)</TableHead>
               <TableHead>Companies</TableHead>
               <TableHead>Budget</TableHead>
-              <TableHead>Realease</TableHead>
+              <TableHead>Release</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="gap-2 p-2">
-              <TableCell>
-                <div className="m-2 bg-red-500 h-full">
-                  <div className="bg-red-500 rounded-md h-full">
-                    <p>Inception</p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col bg-yellow-500 rounded-md">
-                  <p>Action</p>
-                  <p>Adventure</p>
-                  <p>Fiction</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col bg-red-500 rounded-md">
-                  <p>Leonardo Dicaprio</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col bg-green-500 rounded-md">
-                  <p>Christopher Nolan</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col bg-yellow-500 rounded-md">
-                  <p>Warner Bros. Pictures</p>
-                  <p>Syncopy</p>
-                  <p>Legendary Pictures</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col bg-yellow-500 rounded-md">
-                  <p>1600000.00</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col bg-yellow-500 rounded-md">
-                  <p>15/07/2010</p>
-                </div>
-              </TableCell>
-            </TableRow>
+            {guesses.map((guess) => (
+              <TableRow key={guess.id}>
+                <TableCell><div className="bg-green-500 rounded-md p-2">{guess.title}</div></TableCell>
+                <TableCell><div className="bg-yellow-500 rounded-md p-2">{guess.genres.map(g => <p key={g.id}>{g.name}</p>)}</div></TableCell>
+                <TableCell><div className="bg-red-500 rounded-md p-2">{guess.actors[0]?.name || 'N/A'}</div></TableCell>
+                <TableCell><div className="bg-green-500 rounded-md p-2">{guess.directors.map(d => <p key={d.id}>{d.name}</p>)}</div></TableCell>
+                <TableCell><div className="bg-yellow-500 rounded-md p-2">{guess.companies.map(c => <p key={c.id}>{c.name}</p>)}</div></TableCell>
+                <TableCell><div className="bg-yellow-500 rounded-md p-2">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(guess.budget))}</div></TableCell>
+                <TableCell><div className="bg-yellow-500 rounded-md p-2">{new Date(guess.releaseDate).toLocaleDateString()}</div></TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>
