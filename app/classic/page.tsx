@@ -25,7 +25,7 @@ type Guess = {
   }
   "res ": {
     title: string;
-    realeseDate: string;
+    releaseDate: string;
     budget: string;
     genres: string;
     companies: string;
@@ -57,7 +57,7 @@ export default function Classic() {
         }
       };
       fetchData();
-    }, 500);
+    }, 250);
 
     return () => clearTimeout(handler);
   }, [search]);
@@ -81,7 +81,7 @@ export default function Classic() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-cover bg-center">
+    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
       <header className="text-white text-5xl font-extrabold">Cinedle</header>
       <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
         <div className="flex items-center justify-center gap-6">
@@ -94,7 +94,7 @@ export default function Classic() {
                 }
                 setSearch(e.target.value);
               }}
-              className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-2xl text-white w-full"
+              className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-base text-white w-full"
               placeholder="Inception"
               type="text"
             />
@@ -129,54 +129,52 @@ export default function Classic() {
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center ${guess["res "].title == "incorrect" ? "bg-red-500" : guess["res "].title == "correct" ? "bg-green-500" : guess["res "].title == "parcial" ? "bg-yellow-500" : ""} h-full flex items-center justify-center rounded-md p-2`}>
-                    <p className="bg-black/25 rounded-md p-1">
+                  <div className={`h-full w-full align-center ${guess["res "].title == "incorrect" ? "bg-red-500" : guess["res "].title == "correct" ? "bg-green-500" : guess["res "].title == "parcial" ? "bg-yellow-500" : ""} h-full flex items-center justify-center rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">
                       {guess.movie.title}
                     </p>
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].genres == "incorrect" ? "bg-red-500" : guess["res "].genres == "correct" ? "bg-green-500" : guess["res "].genres == "parcial" ? "bg-yellow-500" : ""} rounded-md p-2`}>
-                    <p className="bg-black/25 rounded-md p-1">
-                      {guess.movie.genres.map(g => <p key={g.id}>{g.name}</p>)}
-                    </p>
+                  <div className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${guess["res "].genres == "incorrect" ? "bg-red-500" : guess["res "].genres == "correct" ? "bg-green-500" : guess["res "].genres == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                    {guess.movie.genres.map(g => <p key={g.id} className="bg-black/25 w-full p-1">{g.name}</p>)}
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].actors == "incorrect" ? "bg-red-500" : guess["res "].actors == "correct" ? "bg-green-500" : guess["res "].actors == "parcial" ? "bg-yellow-500" : ""} rounded-md p-2`}>
-                    <p className="bg-black/25 rounded-md p-1">
+                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].actors == "incorrect" ? "bg-red-500" : guess["res "].actors == "correct" ? "bg-green-500" : guess["res "].actors == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">
                       {guess.movie.actors[0]?.name || 'N/A'}
                     </p>
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "] .directors == "incorrect" ? "bg-red-500" : guess["res "].directors == "correct" ? "bg-green-500" : guess["res "].directors == "parcial" ? "bg-yellow-500" : ""} rounded-md p-2`}>
-                    <p className="bg-black/25 rounded-md p-1">
-                      {guess.movie.directors.map(d => <p key={d.id}>{d.name}</p>)}
+                  <div className={`h-full w-full align-center flex-col gap-0.5 flex items-center justify-center ${guess["res "].directors == "incorrect" ? "bg-red-500" : guess["res "].directors == "correct" ? "bg-green-500" : guess["res "].directors == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                    {guess.movie.directors.map(d => <p key={d.id} className="bg-black/25 w-full p-1">{d.name}</p>)}
+                  </div>
+                </TableCell>
+
+                <TableCell className="flex items-center justify-center">
+                  <div className={`h-full w-full flex-col gap-0.5 align-center flex items-center justify-center ${guess["res "].companies == "incorrect" ? "bg-red-500" : guess["res "].companies == "correct" ? "bg-green-500" : guess["res "].companies == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                    {guess.movie.companies.map(c => <p key={c.id} className="bg-black/25 w-full p-1">{c.name}</p>)}
+                  </div>
+                </TableCell>
+
+                <TableCell className="flex items-center justify-center">
+                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].budget == "incorrect" ? "bg-red-500" : guess["res "].budget == "correct" ? "bg-green-500" : guess["res "].budget == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">
+                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(guess.movie.budget))}
                     </p>
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].companies == "incorrect" ? "bg-red-500" : guess["res "].companies == "correct" ? "bg-green-500" : guess["res "].companies == "parcial" ? "bg-yellow-500" : ""} rounded-md p-2`}>
-                    <p className="bg-black/25 rounded-md p-1">
-                      {guess.movie.companies.map(c => <p key={c.id}>{c.name}</p>)}
+                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].releaseDate == "incorrect" ? "bg-red-500" : guess["res "].releaseDate == "correct" ? "bg-green-500" : guess["res "].releaseDate == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">
+                      {new Date(guess.movie.releaseDate).toLocaleDateString()}
                     </p>
-                  </div>
-                </TableCell>
-
-                <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].budget == "incorrect" ? "bg-red-500" : guess["res "].budget == "correct" ? "bg-green-500" : guess["res "].budget == "parcial" ? "bg-yellow-500" : ""} rounded-md p-2`}>
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(guess.movie.budget))}
-                  </div>
-                </TableCell>
-
-                <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].realeseDate == "incorrect" ? "bg-red-500" : guess["res "].realeseDate == "correct" ? "bg-green-500" : guess["res "].realeseDate == "parcial" ? "bg-yellow-500" : ""} rounded-md p-2`}>
-                    {new Date(guess.movie.releaseDate).toLocaleDateString()}
                   </div>
                 </TableCell>
               </TableRow>

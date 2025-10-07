@@ -8,7 +8,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto border-3 border-zinc-700"
+      className="relative w-full overflow-x-auto border-3 border-zinc-700 bg-black rounded-xl flex items-center justify-center"
     >
       <table
         data-slot="table"
@@ -23,7 +23,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("[&_tr]:border-zinc-700 [&_tr]:border-b-3  [+tbody:has(>tr)]:border-b-3 [+tbody:not(:has(>tr))]:border-b-0", className)}
       {...props}
     />
   )
@@ -70,7 +70,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        " bg-zinc-950 text-xl text-white py-3",
+        " bg-zinc-950 text-white py-3",
         className
       )}
       {...props}
@@ -83,7 +83,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 text-white text-lg",
+        "p-2 text-white text-sm",
         className
       )}
       {...props}
