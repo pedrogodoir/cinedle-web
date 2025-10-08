@@ -99,9 +99,13 @@ export default function Classic() {
               type="text"
             />
             {search && results.length > 0 && (
-              <div className="absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700">
+              <div className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto">
                 {results.map(item => (
-                  <div key={item.id} onClick={() => handleSelectMovie(item)} className="text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer">
+                  <div
+                    key={item.id}
+                    onClick={() => handleSelectMovie(item)}
+                    className="text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer"
+                  >
                     <p>{item.title}</p>
                   </div>
                 ))}

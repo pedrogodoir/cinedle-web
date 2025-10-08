@@ -116,7 +116,30 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Estilo para a barra de rolagem */
+.dropdown-scroll::-webkit-scrollbar {
+  background-color: transparent;
+  width: 8px;
+  /* Largura da barra */
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb {
+  background-color: #525252;
+  /* Cor da "thumb" */
+  border-radius: 4px;
+  /* Arredondamento */
+}
+
+.dropdown-scroll::-webkit-scrollbar-track {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background-color: transparent;
+  /* Cor do "track" */
 }
