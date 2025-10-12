@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import axios from "axios";
 import { ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Modal } from "../components/modal/Modal";
+import { IoSettingsOutline } from "react-icons/io5";
 
 type MovieResult = {
   id: string;
@@ -36,6 +38,7 @@ type Guess = {
 };
 
 export default function Classic() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
@@ -89,7 +92,26 @@ export default function Classic() {
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
-      <header className="text-white text-5xl font-extrabold">Cinedle</header>
+        <header className="relative w-full py-4 flex items-center justify-center text-white text-5xl font-extrabold">
+
+  <p className="z-10">Cinedle</p>
+
+  
+  <IoSettingsOutline
+    size={40}
+    className="absolute right-10 md:right-100 top-1/2 -translate-y-1/2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors cursor-pointer"
+    onClick={() => setIsModalOpen(true)}
+  />
+</header>
+      <Modal
+              isOpen={isModalOpen}
+              onClose={() => {
+                setIsModalOpen(false);
+              }}
+            >
+              <p></p>
+      </Modal>
+
       <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
         <div className="flex items-center justify-center gap-6">
           <div className="relative w-72">
