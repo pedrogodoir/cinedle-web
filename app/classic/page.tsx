@@ -73,6 +73,13 @@ export default function Classic() {
     try {
       const res = await axios.get(`https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`);
       console.log(res.data);
+
+    // Tocar som se for correto
+    if (res.data["res "]?.correct === true) {
+      const audio = new Audio('/sounds/correct_guess.mp3'); // caminho relativo ao public/
+      audio.play();
+    }
+
       setGuesses(prevGuesses => [res.data, ...prevGuesses]);
       setSelectedMovie(null);
     } catch (error) {
