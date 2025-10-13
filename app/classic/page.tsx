@@ -119,16 +119,35 @@ export default function Classic() {
                 setHighlightedIndex(-1); // Reseta o índice ao digitar
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !isLoading) { // Bloqueia múltiplos envios enquanto está carregando
                   if (selectedMovie) {
-                    handleSubmitGuess();
+                    // Verifica se o filme já foi tentado antes de enviar
+                    if (!guesses.some((guess) => guess.movie.id === Number(selectedMovie.id))) {
+                      handleSubmitGuess();
+                    }
                   } else if (results.length === 1) {
-                    handleSelectMovie(results[0]);
-                    setTimeout(() => handleSubmitGuess(), 0);
+                    // Seleciona e envia diretamente se houver apenas um item na lista
+                    const firstMovie = results.find(
+                      (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
+                    );
+                    if (firstMovie) {
+                      handleSelectMovie(firstMovie);
+                      setTimeout(() => handleSubmitGuess(), 0);
+                    }
                   } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
-                    handleSelectMovie(results[highlightedIndex]);
+                    // Seleciona o item destaque
+                    const highlightedMovie = results[highlightedIndex];
+                    if (!guesses.some((guess) => guess.movie.id === Number(highlightedMovie.id))) {
+                      handleSelectMovie(highlightedMovie);
+                    }
                   } else if (results.length > 0) {
-                    handleSelectMovie(results[0]);
+                    // Seleciona o primeiro item válido se nenhum tiver destacado
+                    const firstMovie = results.find(
+                      (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
+                    );
+                    if (firstMovie) {
+                      handleSelectMovie(firstMovie);
+                    }
                   }
                 } else if (e.key === "ArrowDown" || e.key === "Tab") {
                   e.preventDefault();
