@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import axios from "axios";
-import { ArrowDown, ArrowUp, ChevronRightIcon } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type MovieResult = {
@@ -40,6 +40,7 @@ export default function Classic() {
   const [results, setResults] = useState<MovieResult[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!search) {
@@ -70,6 +71,7 @@ export default function Classic() {
 
   const handleSubmitGuess = async () => {
     if (!selectedMovie) return;
+    setIsLoading(true); // Inicia o loading
     try {
       const res = await axios.get(`https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`);
       console.log(res.data);
@@ -84,6 +86,8 @@ export default function Classic() {
       setSelectedMovie(null);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
+    } finally {
+      setIsLoading(false); // Finaliza o loading
     }
   };
 
@@ -140,8 +144,17 @@ export default function Classic() {
             )}
           </div>
 
-          <Button onClick={handleSubmitGuess} disabled={!selectedMovie} className="bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed" size={"icon"}>
-            <ChevronRightIcon size={40} />
+          <Button
+            onClick={handleSubmitGuess}
+            disabled={!selectedMovie || isLoading} // Desabilita o botão enquanto está carregando
+            className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed ${isLoading ? "opacity-70" : ""}`}
+            size={"icon"}
+          >
+            {isLoading ? (
+              <Loader2 size={35} className="animate-spin p-1 text-white" /> 
+            ) : (
+              <ChevronRightIcon size={40} />
+            )}
           </Button>
         </div>
 
