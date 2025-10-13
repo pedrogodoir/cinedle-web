@@ -95,30 +95,51 @@ export default function Classic() {
           <div className="relative w-72">
             <Input
               value={selectedMovie ? selectedMovie.title : search}
-              onChange={e => {
+              onChange={(e) => {
                 if (selectedMovie) {
                   setSelectedMovie(null);
                 }
                 setSearch(e.target.value);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (selectedMovie) {
+                    // Envia o palpite automaticamente
+                    handleSubmitGuess();
+                  } else if (results.length > 0) {
+                    // Seleciona automaticamente o primeiro item da lista
+                    const firstMovie = results.find(
+                      (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
+                    );
+                    if (firstMovie) {
+                      handleSelectMovie(firstMovie);
+                      setTimeout(() => handleSubmitGuess(), 0); // Envia o palpite após selecionar
+                    }
+                  }
+                }
+              }}
               className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-base text-white w-full"
               placeholder="Inception"
               type="text"
             />
+
             {search && results.length > 0 && (
               <div className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto">
-                {results.map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => handleSelectMovie(item)}
-                    className="text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer"
-                  >
-                    <p>{item.title}</p>
-                  </div>
-                ))}
+                {results
+                  .filter((movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id)))
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleSelectMovie(item)}
+                      className="text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer"
+                    >
+                      <p>{item.title}</p>
+                    </div>
+                  ))}
               </div>
             )}
           </div>
+
           <Button onClick={handleSubmitGuess} disabled={!selectedMovie} className="bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed" size={"icon"}>
             <ChevronRightIcon size={40} />
           </Button>
@@ -194,8 +215,8 @@ export default function Classic() {
                     <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
                       {new Date(guess.movie.releaseDate).toLocaleDateString()}
                     </p>
-                      {guess["res "].releaseDate === "less" && <ArrowDown size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
-                      {guess["res "].releaseDate === "more" && <ArrowUp size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
+                    {guess["res "].releaseDate === "less" && <ArrowDown size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
+                    {guess["res "].releaseDate === "more" && <ArrowUp size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
                   </div>
                 </TableCell>
               </TableRow>
