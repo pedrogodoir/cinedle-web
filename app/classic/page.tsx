@@ -126,20 +126,10 @@ export default function Classic() {
                       handleSubmitGuess();
                     }
                   } else if (results.length === 1) {
-                    // Seleciona e envia diretamente se houver apenas um item na lista
-                    const firstMovie = results.find(
-                      (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
-                    );
-                    if (firstMovie) {
-                      handleSelectMovie(firstMovie);
-                      setTimeout(() => handleSubmitGuess(), 0);
-                    }
+                    handleSelectMovie(results[0]);
+                    setTimeout(() => handleSubmitGuess(), 0);
                   } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
-                    // Seleciona o item destaque
-                    const highlightedMovie = results[highlightedIndex];
-                    if (!guesses.some((guess) => guess.movie.id === Number(highlightedMovie.id))) {
-                      handleSelectMovie(highlightedMovie);
-                    }
+                    handleSelectMovie(results[highlightedIndex]);
                   } else if (results.length > 0) {
                     // Seleciona o primeiro item válido se nenhum tiver destacado
                     const firstMovie = results.find(
@@ -159,7 +149,8 @@ export default function Classic() {
                 } else if (e.key === "ArrowUp") {
                   e.preventDefault();
                   setHighlightedIndex((prev) => {
-                    const nextIndex = (prev - 1 + results.length) % results.length;
+                    const nextIndex =
+                      (prev - 1 + results.length) % results.length;
                     scrollToHighlighted(nextIndex); // Rola até o item destacado
                     return nextIndex;
                   });
