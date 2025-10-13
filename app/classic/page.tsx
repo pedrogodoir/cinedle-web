@@ -43,6 +43,7 @@ export default function Classic() {
   const [results, setResults] = useState<MovieResult[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
+  const colorBlindActive = localStorage.getItem("colorBlind") === "true";
 
   useEffect(() => {
     if (!search) {
@@ -90,6 +91,18 @@ export default function Classic() {
     }
   };
 
+  const getCellColor = (value: string) => {
+    if (colorBlindActive) return "bg-gray-400";
+    if (value === "correct") return "bg-green-500";
+    if (value === "incorrect") return "bg-red-500";
+    if (value === "parcial") return "bg-yellow-500";
+    return "";
+  };
+
+  const [colorBlind, setColorBlind] = useState(
+    localStorage.getItem("colorBlind") === "true"
+  );
+
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
         <header className="relative w-full py-4 flex items-center justify-center text-white text-5xl font-extrabold">
@@ -105,12 +118,10 @@ export default function Classic() {
 </header>
       <Modal
               isOpen={isModalOpen}
-              onClose={() => {
-                setIsModalOpen(false);
-              }}
-            >
-              <p></p>
-      </Modal>
+              onClose={() => {setIsModalOpen(false)}}
+              colorBlind={colorBlind}
+              setColorBlind={setColorBlind}
+            />
 
       <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
         <div className="flex items-center justify-center gap-6">
@@ -162,57 +173,50 @@ export default function Classic() {
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center ${guess["res "].title == "incorrect" ? "bg-red-500" : guess["res "].title == "correct" ? "bg-green-500" : guess["res "].title == "parcial" ? "bg-yellow-500" : ""} h-full flex items-center justify-center rounded-md`}>
-                    <p className="bg-black/25 w-full p-1">
-                      {guess.movie.title}
-                    </p>
+                  <div className={`h-full w-full align-center flex items-center justify-center ${getCellColor(guess["res "].title)} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">{guess.movie.title}</p>
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${guess["res "].genres == "incorrect" ? "bg-red-500" : guess["res "].genres == "correct" ? "bg-green-500" : guess["res "].genres == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                  <div className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${getCellColor(guess["res "].genres)} rounded-md`}>
                     {guess.movie.genres.map(g => <p key={g.id} className="bg-black/25 w-full p-1">{g.name}</p>)}
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].actors == "incorrect" ? "bg-red-500" : guess["res "].actors == "correct" ? "bg-green-500" : guess["res "].actors == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
-                    <p className="bg-black/25 w-full p-1">
-                      {guess.movie.actors[0]?.name || 'N/A'}
-                    </p>
+                  <div className={`h-full w-full align-center flex items-center justify-center ${getCellColor(guess["res "].actors)} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">{guess.movie.actors[0]?.name || 'N/A'}</p>
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex-col gap-0.5 flex items-center justify-center ${guess["res "].directors == "incorrect" ? "bg-red-500" : guess["res "].directors == "correct" ? "bg-green-500" : guess["res "].directors == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                  <div className={`h-full w-full align-center flex-col gap-0.5 flex items-center justify-center ${getCellColor(guess["res "].directors)} rounded-md`}>
                     {guess.movie.directors.map(d => <p key={d.id} className="bg-black/25 w-full p-1">{d.name}</p>)}
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full flex-col gap-0.5 align-center flex items-center justify-center ${guess["res "].companies == "incorrect" ? "bg-red-500" : guess["res "].companies == "correct" ? "bg-green-500" : guess["res "].companies == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                  <div className={`h-full w-full flex-col gap-0.5 align-center flex items-center justify-center ${getCellColor(guess["res "].companies)} rounded-md`}>
                     {guess.movie.companies.map(c => <p key={c.id} className="bg-black/25 w-full p-1">{c.name}</p>)}
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].budget == "incorrect" ? "bg-red-500" : guess["res "].budget == "correct" ? "bg-green-500" : guess["res "].budget == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
-                    <p className="bg-black/25 w-full p-1">
-                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(guess.movie.budget))}
-                    </p>
+                  <div className={`h-full w-full align-center flex items-center justify-center ${getCellColor(guess["res "].budget)} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(guess.movie.budget))}</p>
                   </div>
                 </TableCell>
 
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].releaseDate == "incorrect" ? "bg-red-500" : guess["res "].releaseDate == "correct" ? "bg-green-500" : guess["res "].releaseDate == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
-                    <p className="bg-black/25 w-full p-1">
-                      {new Date(guess.movie.releaseDate).toLocaleDateString()}
-                    </p>
+                  <div className={`h-full w-full align-center flex items-center justify-center ${getCellColor(guess["res "].releaseDate)} rounded-md`}>
+                    <p className="bg-black/25 w-full p-1">{new Date(guess.movie.releaseDate).toLocaleDateString()}</p>
                   </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
+
         </Table>
       </div>
     </div >
