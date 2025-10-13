@@ -41,6 +41,7 @@ export default function Classic() {
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   useEffect(() => {
     if (!search) {
@@ -104,22 +105,32 @@ export default function Classic() {
                   setSelectedMovie(null);
                 }
                 setSearch(e.target.value);
+                setHighlightedIndex(-1); // Reseta o índice ao digitar
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   if (selectedMovie) {
-                    // Envia o palpite automaticamente
+                    // Envia o palpite se um filme já estiver selecionado
                     handleSubmitGuess();
+                  } else if (results.length === 1) {
+                    // Seleciona e envia diretamente se houver apenas um item na lista
+                    handleSelectMovie(results[0]);
+                    setTimeout(() => handleSubmitGuess(), 0);
+                  } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
+                    // Seleciona o item destacado
+                    handleSelectMovie(results[highlightedIndex]);
                   } else if (results.length > 0) {
-                    // Seleciona automaticamente o primeiro item da lista
-                    const firstMovie = results.find(
-                      (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
-                    );
-                    if (firstMovie) {
-                      handleSelectMovie(firstMovie);
-                      setTimeout(() => handleSubmitGuess(), 0); // Envia o palpite após selecionar
-                    }
+                    // Seleciona o primeiro item se nenhum estiver destacado
+                    handleSelectMovie(results[0]);
                   }
+                } else if (e.key === "ArrowDown" || e.key === "Tab") {
+                  // Navega para baixo
+                  e.preventDefault(); // Evita o comportamento padrão do Tab
+                  setHighlightedIndex((prev) => (prev + 1) % results.length);
+                } else if (e.key === "ArrowUp") {
+                  // Navega para cima
+                  e.preventDefault();
+                  setHighlightedIndex((prev) => (prev - 1 + results.length) % results.length);
                 }
               }}
               className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-base text-white w-full"
@@ -131,11 +142,12 @@ export default function Classic() {
               <div className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto">
                 {results
                   .filter((movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id)))
-                  .map((item) => (
+                  .map((item, index) => (
                     <div
                       key={item.id}
                       onClick={() => handleSelectMovie(item)}
-                      className="text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer"
+                      className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${index === highlightedIndex ? "bg-zinc-700" : ""
+                        }`}
                     >
                       <p>{item.title}</p>
                     </div>
@@ -151,7 +163,7 @@ export default function Classic() {
             size={"icon"}
           >
             {isLoading ? (
-              <Loader2 size={35} className="animate-spin p-1 text-white" /> 
+              <Loader2 size={35} className="animate-spin p-1 text-white" />
             ) : (
               <ChevronRightIcon size={40} />
             )}
