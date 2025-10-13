@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import axios from "axios";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type MovieResult = {
   id: string;
@@ -42,6 +42,7 @@ export default function Classic() {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!search) {
@@ -92,6 +93,16 @@ export default function Classic() {
     }
   };
 
+  const scrollToHighlighted = (index: number) => {
+    const dropdown = dropdownRef.current;
+    if (!dropdown) return;
+
+    const item = dropdown.children[index] as HTMLElement;
+    if (item) {
+      item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
       <header className="text-white text-5xl font-extrabold">Cinedle</header>
@@ -110,27 +121,29 @@ export default function Classic() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   if (selectedMovie) {
-                    // Envia o palpite se um filme já estiver selecionado
                     handleSubmitGuess();
                   } else if (results.length === 1) {
-                    // Seleciona e envia diretamente se houver apenas um item na lista
                     handleSelectMovie(results[0]);
                     setTimeout(() => handleSubmitGuess(), 0);
                   } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
-                    // Seleciona o item destacado
                     handleSelectMovie(results[highlightedIndex]);
                   } else if (results.length > 0) {
-                    // Seleciona o primeiro item se nenhum estiver destacado
                     handleSelectMovie(results[0]);
                   }
                 } else if (e.key === "ArrowDown" || e.key === "Tab") {
-                  // Navega para baixo
-                  e.preventDefault(); // Evita o comportamento padrão do Tab
-                  setHighlightedIndex((prev) => (prev + 1) % results.length);
-                } else if (e.key === "ArrowUp") {
-                  // Navega para cima
                   e.preventDefault();
-                  setHighlightedIndex((prev) => (prev - 1 + results.length) % results.length);
+                  setHighlightedIndex((prev) => {
+                    const nextIndex = (prev + 1) % results.length;
+                    scrollToHighlighted(nextIndex); // Rola até o item destacado
+                    return nextIndex;
+                  });
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setHighlightedIndex((prev) => {
+                    const nextIndex = (prev - 1 + results.length) % results.length;
+                    scrollToHighlighted(nextIndex); // Rola até o item destacado
+                    return nextIndex;
+                  });
                 }
               }}
               className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-base text-white w-full"
@@ -139,7 +152,10 @@ export default function Classic() {
             />
 
             {search && results.length > 0 && (
-              <div className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto">
+              <div
+                ref={dropdownRef}
+                className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto"
+              >
                 {results
                   .filter((movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id)))
                   .map((item, index) => (
