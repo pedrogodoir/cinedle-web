@@ -22,7 +22,11 @@ export function appendHistoryItem(item: HistoryItem) {
  * Lê todo o histórico
  */
 export function getHistory(): HistoryItem[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") {
+    console.log("getHistory called on server side");
+    return [];
+  }
+
   const stored = localStorage.getItem("history");
   return stored ? JSON.parse(stored) : [];
 }

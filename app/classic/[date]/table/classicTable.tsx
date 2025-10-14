@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { History } from "@/components/ui/history";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -11,8 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { appendHistoryItem, getHistory } from "@/lib/localstorage";
 import { HistoryItem } from "@/lib/types/historyItem";
+import { Movie } from "@/lib/types/movieType";
+import { appendHistoryItem, getHistory } from "@/lib/useLocalstorage";
 import axios from "axios";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -23,17 +23,8 @@ type MovieResult = {
 };
 
 type Guess = {
-  movie: {
-    id: number;
-    title: string;
-    releaseDate: string;
-    budget: string;
-    genres: { id: number; name: string }[];
-    companies: { id: number; name: string }[];
-    directors: { id: number; name: string }[];
-    actors: { id: number; name: string }[];
-  };
-  "res ": {
+  movie: Movie;
+  res: {
     title: string;
     releaseDate: string;
     budget: string;
@@ -45,7 +36,7 @@ type Guess = {
   };
 };
 
-export default function Classic() {
+export default function ClassicTable() {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
@@ -66,7 +57,6 @@ export default function Classic() {
           const res = await axios.get(
             `https://cinedle-backend.onrender.com/movies/summary/${search}`
           );
-          console.log(res.data);
           setResults(Array.isArray(res.data) ? res.data : []);
         } catch {
           setResults([]);
@@ -86,16 +76,16 @@ export default function Classic() {
 
   const handleSubmitGuess = async () => {
     if (!selectedMovie) return;
-    setIsLoading(true); // Inicia o loading
+    setIsLoading(true);
     try {
       const res = await axios.get(
         `https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`
       );
-      console.log(res.data);
-
       // Tocar som se for correto e salva no localstorage
-      if (res.data["res "]?.correct === true) {
+      const guess: Guess = res.data;
+      if (guess.res.correct === true) {
         const newItem: HistoryItem = {
+          id: guess.movie.id,
           date: new Date().toISOString(),
           totalAttempts: guesses.length + 1,
         };
@@ -105,7 +95,7 @@ export default function Classic() {
         audio.play();
       }
 
-      setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
+      setGuesses((prevGuesses) => [guess, ...prevGuesses]);
       setSelectedMovie(null);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
@@ -125,10 +115,7 @@ export default function Classic() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
-      <header className="text-white text-5xl font-extrabold flex gap-4 mt-8">
-        Cinedle <History data={history} />
-      </header>
+    <div className="flex flex-col items-center justify-items-center min-h-screen">
       <div className="flex flex-col items-center flex-1 gap-10 text-center py-30">
         <div className="flex items-center justify-center gap-6">
           <div className="relative w-72">
@@ -240,11 +227,11 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={`h-full w-full align-center ${
-                      guess["res "].title == "incorrect"
+                      guess.res.title == "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].title == "correct"
+                        : guess.res.title == "correct"
                         ? "bg-green-500"
-                        : guess["res "].title == "parcial"
+                        : guess.res.title == "parcial"
                         ? "bg-yellow-500"
                         : ""
                     } h-full flex items-center justify-center rounded-md`}
@@ -259,11 +246,11 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${
-                      guess["res "].genres == "incorrect"
+                      guess.res.genres == "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].genres == "correct"
+                        : guess.res.genres == "correct"
                         ? "bg-green-500"
-                        : guess["res "].genres == "parcial"
+                        : guess.res.genres == "parcial"
                         ? "bg-yellow-500"
                         : ""
                     } rounded-md`}
@@ -280,11 +267,11 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={`h-full w-full align-center flex items-center justify-center ${
-                      guess["res "].actors == "incorrect"
+                      guess.res.actors == "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].actors == "correct"
+                        : guess.res.actors == "correct"
                         ? "bg-green-500"
-                        : guess["res "].actors == "parcial"
+                        : guess.res.actors == "parcial"
                         ? "bg-yellow-500"
                         : ""
                     } rounded-md`}
@@ -299,11 +286,11 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={`h-full w-full align-center flex-col gap-0.5 flex items-center justify-center ${
-                      guess["res "].directors == "incorrect"
+                      guess.res.directors == "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].directors == "correct"
+                        : guess.res.directors == "correct"
                         ? "bg-green-500"
-                        : guess["res "].directors == "parcial"
+                        : guess.res.directors == "parcial"
                         ? "bg-yellow-500"
                         : ""
                     } rounded-md`}
@@ -320,11 +307,11 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={`h-full w-full flex-col gap-0.5 align-center flex items-center justify-center ${
-                      guess["res "].companies == "incorrect"
+                      guess.res.companies == "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].companies == "correct"
+                        : guess.res.companies == "correct"
                         ? "bg-green-500"
-                        : guess["res "].companies == "parcial"
+                        : guess.res.companies == "parcial"
                         ? "bg-yellow-500"
                         : ""
                     } rounded-md`}
@@ -341,13 +328,13 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={` relative h-full w-full align-center ${
-                      guess["res "].budget === "incorrect"
+                      guess.res.budget === "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].budget === "correct"
+                        : guess.res.budget === "correct"
                         ? "bg-green-500"
-                        : guess["res "].budget === "less"
+                        : guess.res.budget === "less"
                         ? "bg-yellow-500"
-                        : guess["res "].budget === "more"
+                        : guess.res.budget === "more"
                         ? "bg-yellow-500"
                         : ""
                     } h-full flex items-center justify-center rounded-md`}
@@ -358,14 +345,14 @@ export default function Classic() {
                         currency: "USD",
                       }).format(Number(guess.movie.budget))}
                     </p>
-                    {guess["res "].budget === "less" && (
+                    {guess.res.budget === "less" && (
                       <ArrowDown
                         size="100%"
                         strokeWidth={3}
                         className="absolute z-0 text-zinc-800"
                       />
                     )}
-                    {guess["res "].budget === "more" && (
+                    {guess.res.budget === "more" && (
                       <ArrowUp
                         size="100%"
                         strokeWidth={3}
@@ -378,13 +365,13 @@ export default function Classic() {
                 <TableCell className="flex items-center justify-center">
                   <div
                     className={` relative h-full w-full max-w-full max-h-full align-center ${
-                      guess["res "].releaseDate === "incorrect"
+                      guess.res.releaseDate === "incorrect"
                         ? "bg-red-500"
-                        : guess["res "].releaseDate === "correct"
+                        : guess.res.releaseDate === "correct"
                         ? "bg-green-500"
-                        : guess["res "].releaseDate === "less"
+                        : guess.res.releaseDate === "less"
                         ? "bg-yellow-500"
-                        : guess["res "].releaseDate === "more"
+                        : guess.res.releaseDate === "more"
                         ? "bg-yellow-500"
                         : ""
                     } h-full flex items-center justify-center rounded-md`}
@@ -392,14 +379,14 @@ export default function Classic() {
                     <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
                       {new Date(guess.movie.releaseDate).toLocaleDateString()}
                     </p>
-                    {guess["res "].releaseDate === "less" && (
+                    {guess.res.releaseDate === "less" && (
                       <ArrowDown
                         size="100%"
                         strokeWidth={3}
                         className="absolute z-0 text-zinc-800"
                       />
                     )}
-                    {guess["res "].releaseDate === "more" && (
+                    {guess.res.releaseDate === "more" && (
                       <ArrowUp
                         size="100%"
                         strokeWidth={3}

@@ -12,6 +12,7 @@ import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { HistoryItem } from "@/lib/types/historyItem";
+import { useRouter } from "next/navigation";
 
 type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
@@ -31,6 +32,13 @@ function Calendar({
 }: CalendarProps) {
   const defaultClassNames = getDefaultClassNames();
 
+  const router = useRouter();
+
+  const handleDayClick = (date: Date) => {
+    const href = `/classic/${date.toISOString().split("T")[0]}`;
+    router.push(href);
+  };
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -38,6 +46,7 @@ function Calendar({
         "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
+
         className
       )}
       captionLayout={captionLayout}
@@ -164,9 +173,10 @@ function Calendar({
         DayButton: (props) => (
           <CalendarDayButton
             {...props}
+            onClick={() => handleDayClick(props.day.date)}
             isGuessed={data.some((item) => {
-              //fuso horário deu bo, isso aqui é uma gambiarra pra comparar só a data
-              const temp  = item.date.split("T")[0];
+              //fuso horário deu bo, isso aqui   é uma gambiarra pra comparar só a data
+              const temp = item.date.split("T")[0];
               const [year, month, day] = temp.split("-").map(Number);
               console.log(year, month, day);
               const itemDate = new Date(year, month - 1, day); // month - 1 porque Date usa 0-11 para meses :(
@@ -215,7 +225,6 @@ function CalendarDayButton({
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus();
   }, [modifiers.focused]);
-
   return (
     <Button
       {...props}
@@ -232,10 +241,6 @@ function CalendarDayButton({
       data-range-start={modifiers.range_start}
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
-      onClick={(e) => {
-        // Handle day button click
-        alert("Day button clicked: should go to win screen");
-      }}
       className={cn(
         "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
         isGuessed && "border-2 border-green-700",
