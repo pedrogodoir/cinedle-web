@@ -30,3 +30,17 @@ export function getHistory(): HistoryItem[] {
   const stored = localStorage.getItem("history");
   return stored ? JSON.parse(stored) : [];
 }
+export function getColorBlind(): boolean {
+  if (typeof window === "undefined") {
+    console.log("getColorBlind called on server side");
+    return false;
+  }
+  return localStorage.getItem("colorBlind") === "true";
+}
+export function setColorBlind(value: boolean) {
+  if (typeof window === "undefined") {
+    console.log("setColorBlind called on server side");
+    return;
+  }
+  localStorage.setItem("colorBlind", value ? "true" : "false");
+}

@@ -23,6 +23,8 @@ export default function Home() {
         onClose={() => {
           setIsModalOpen(false);
         }}
+        colorBlind={false}
+        setColorBlind={() => {}}
       >
         <p></p>
       </Modal>
