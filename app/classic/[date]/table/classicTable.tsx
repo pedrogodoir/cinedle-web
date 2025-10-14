@@ -41,15 +41,15 @@ type Guess = {
 };
 
 export default function ClassicTable() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
+  const [colorBlind, setColorBlind] = useState(getColorBlind());
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [history, setHistory] = useState<HistoryItem[]>(getHistory());
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [colorBlind, setColorBlind] = useState(getColorBlind());
 
   useEffect(() => {
     if (!search) {
@@ -60,8 +60,9 @@ export default function ClassicTable() {
       const fetchData = async () => {
         try {
           const res = await axios.get(
-            `https://cinedle-backend.onrender.com/mojvies/summary/${search}`
+            `https://cinedle-backend.onrender.com/movies/summary/${search}`
           );
+          console.log(res.data);
           setResults(Array.isArray(res.data) ? res.data : []);
         } catch {
           setResults([]);
@@ -81,26 +82,20 @@ export default function ClassicTable() {
 
   const handleSubmitGuess = async () => {
     if (!selectedMovie) return;
-    setIsLoading(true);
+    setIsLoading(true); // Inicia o loading
     try {
       const res = await axios.get(
         `https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`
       );
-      // Tocar som se for correto e salva no localstorage
-      const guess: Guess = res.data;
-      if (guess.res.correct === true) {
-        const newItem: HistoryItem = {
-          id: guess.movie.id,
-          date: new Date().toISOString(),
-          totalAttempts: guesses.length + 1,
-        };
-        appendHistoryItem(newItem);
-        setHistory((prev) => [...prev, newItem]);
+      console.log(res.data);
+
+      // Tocar som se for correto
+      if (res.data.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3"); // caminho relativo ao public/
         audio.play();
       }
 
-      setGuesses((prevGuesses) => [guess, ...prevGuesses]);
+      setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
       setSelectedMovie(null);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
@@ -242,9 +237,7 @@ export default function ClassicTable() {
         <Button
           onClick={handleSubmitGuess}
           disabled={!selectedMovie || isLoading} // Desabilita o botão enquanto está carregando
-          className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed ${
-            isLoading ? "opacity-70" : ""
-          }`}
+          className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed`}
           size={"icon"}
         >
           {isLoading ? (
