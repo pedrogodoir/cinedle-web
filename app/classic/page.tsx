@@ -1,8 +1,18 @@
-'use client'
+"use client";
 
 import { Button } from "@/components/ui/button";
+import { History } from "@/components/ui/history";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { appendHistoryItem, getHistory } from "@/lib/localstorage";
+import { HistoryItem } from "@/lib/types/historyItem";
 import axios from "axios";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +32,7 @@ type Guess = {
     companies: { id: number; name: string }[];
     directors: { id: number; name: string }[];
     actors: { id: number; name: string }[];
-  }
+  };
   "res ": {
     title: string;
     releaseDate: string;
@@ -32,7 +42,7 @@ type Guess = {
     directors: string;
     actors: string;
     correct: boolean;
-  }
+  };
 };
 
 export default function Classic() {
@@ -41,6 +51,7 @@ export default function Classic() {
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>(getHistory());
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +63,9 @@ export default function Classic() {
     const handler = setTimeout(() => {
       const fetchData = async () => {
         try {
-          const res = await axios.get(`https://cinedle-backend.onrender.com/movies/summary/${search}`);
+          const res = await axios.get(
+            `https://cinedle-backend.onrender.com/movies/summary/${search}`
+          );
           console.log(res.data);
           setResults(Array.isArray(res.data) ? res.data : []);
         } catch {
@@ -75,16 +88,24 @@ export default function Classic() {
     if (!selectedMovie) return;
     setIsLoading(true); // Inicia o loading
     try {
-      const res = await axios.get(`https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`);
+      const res = await axios.get(
+        `https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`
+      );
       console.log(res.data);
 
-      // Tocar som se for correto
+      // Tocar som se for correto e salva no localstorage
       if (res.data["res "]?.correct === true) {
-        const audio = new Audio('/sounds/correct_guess.mp3'); // caminho relativo ao public/
+        const newItem: HistoryItem = {
+          date: new Date().toISOString(),
+          totalAttempts: guesses.length + 1,
+        };
+        appendHistoryItem(newItem);
+        setHistory((prev) => [...prev, newItem]);
+        const audio = new Audio("/sounds/correct_guess.mp3"); // caminho relativo ao public/
         audio.play();
       }
 
-      setGuesses(prevGuesses => [res.data, ...prevGuesses]);
+      setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
       setSelectedMovie(null);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
@@ -105,8 +126,10 @@ export default function Classic() {
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
-      <header className="text-white text-5xl font-extrabold">Cinedle</header>
-      <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
+      <header className="text-white text-5xl font-extrabold flex gap-4 mt-8">
+        Cinedle <History data={history} />
+      </header>
+      <div className="flex flex-col items-center flex-1 gap-10 text-center py-30">
         <div className="flex items-center justify-center gap-6">
           <div className="relative w-72">
             <Input
@@ -125,7 +148,10 @@ export default function Classic() {
                   } else if (results.length === 1) {
                     handleSelectMovie(results[0]);
                     setTimeout(() => handleSubmitGuess(), 0);
-                  } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
+                  } else if (
+                    highlightedIndex >= 0 &&
+                    results[highlightedIndex]
+                  ) {
                     handleSelectMovie(results[highlightedIndex]);
                   } else if (results.length > 0) {
                     handleSelectMovie(results[0]);
@@ -140,7 +166,8 @@ export default function Classic() {
                 } else if (e.key === "ArrowUp") {
                   e.preventDefault();
                   setHighlightedIndex((prev) => {
-                    const nextIndex = (prev - 1 + results.length) % results.length;
+                    const nextIndex =
+                      (prev - 1 + results.length) % results.length;
                     scrollToHighlighted(nextIndex); // Rola até o item destacado
                     return nextIndex;
                   });
@@ -157,13 +184,19 @@ export default function Classic() {
                 className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto"
               >
                 {results
-                  .filter((movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id)))
+                  .filter(
+                    (movie) =>
+                      !guesses.some(
+                        (guess) => guess.movie.id === Number(movie.id)
+                      )
+                  )
                   .map((item, index) => (
                     <div
                       key={item.id}
                       onClick={() => handleSelectMovie(item)}
-                      className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${index === highlightedIndex ? "bg-zinc-700" : ""
-                        }`}
+                      className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${
+                        index === highlightedIndex ? "bg-zinc-700" : ""
+                      }`}
                     >
                       <p>{item.title}</p>
                     </div>
@@ -175,7 +208,9 @@ export default function Classic() {
           <Button
             onClick={handleSubmitGuess}
             disabled={!selectedMovie || isLoading} // Desabilita o botão enquanto está carregando
-            className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed ${isLoading ? "opacity-70" : ""}`}
+            className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed ${
+              isLoading ? "opacity-70" : ""
+            }`}
             size={"icon"}
           >
             {isLoading ? (
@@ -203,7 +238,17 @@ export default function Classic() {
               <TableRow key={guess.movie.id}>
                 {/* Title */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center ${guess["res "].title == "incorrect" ? "bg-red-500" : guess["res "].title == "correct" ? "bg-green-500" : guess["res "].title == "parcial" ? "bg-yellow-500" : ""} h-full flex items-center justify-center rounded-md`}>
+                  <div
+                    className={`h-full w-full align-center ${
+                      guess["res "].title == "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].title == "correct"
+                        ? "bg-green-500"
+                        : guess["res "].title == "parcial"
+                        ? "bg-yellow-500"
+                        : ""
+                    } h-full flex items-center justify-center rounded-md`}
+                  >
                     <p className="bg-black/25 w-full p-1">
                       {guess.movie.title}
                     </p>
@@ -212,52 +257,155 @@ export default function Classic() {
 
                 {/* Genre */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${guess["res "].genres == "incorrect" ? "bg-red-500" : guess["res "].genres == "correct" ? "bg-green-500" : guess["res "].genres == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
-                    {guess.movie.genres.map(g => <p key={g.id} className="bg-black/25 w-full p-1">{g.name}</p>)}
+                  <div
+                    className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${
+                      guess["res "].genres == "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].genres == "correct"
+                        ? "bg-green-500"
+                        : guess["res "].genres == "parcial"
+                        ? "bg-yellow-500"
+                        : ""
+                    } rounded-md`}
+                  >
+                    {guess.movie.genres.map((g) => (
+                      <p key={g.id} className="bg-black/25 w-full p-1">
+                        {g.name}
+                      </p>
+                    ))}
                   </div>
                 </TableCell>
 
                 {/* Actor */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex items-center justify-center ${guess["res "].actors == "incorrect" ? "bg-red-500" : guess["res "].actors == "correct" ? "bg-green-500" : guess["res "].actors == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
+                  <div
+                    className={`h-full w-full align-center flex items-center justify-center ${
+                      guess["res "].actors == "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].actors == "correct"
+                        ? "bg-green-500"
+                        : guess["res "].actors == "parcial"
+                        ? "bg-yellow-500"
+                        : ""
+                    } rounded-md`}
+                  >
                     <p className="bg-black/25 w-full p-1">
-                      {guess.movie.actors[0]?.name || 'N/A'}
+                      {guess.movie.actors[0]?.name || "N/A"}
                     </p>
                   </div>
                 </TableCell>
 
                 {/* Director */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full align-center flex-col gap-0.5 flex items-center justify-center ${guess["res "].directors == "incorrect" ? "bg-red-500" : guess["res "].directors == "correct" ? "bg-green-500" : guess["res "].directors == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
-                    {guess.movie.directors.map(d => <p key={d.id} className="bg-black/25 w-full p-1">{d.name}</p>)}
+                  <div
+                    className={`h-full w-full align-center flex-col gap-0.5 flex items-center justify-center ${
+                      guess["res "].directors == "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].directors == "correct"
+                        ? "bg-green-500"
+                        : guess["res "].directors == "parcial"
+                        ? "bg-yellow-500"
+                        : ""
+                    } rounded-md`}
+                  >
+                    {guess.movie.directors.map((d) => (
+                      <p key={d.id} className="bg-black/25 w-full p-1">
+                        {d.name}
+                      </p>
+                    ))}
                   </div>
                 </TableCell>
 
                 {/* Company */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={`h-full w-full flex-col gap-0.5 align-center flex items-center justify-center ${guess["res "].companies == "incorrect" ? "bg-red-500" : guess["res "].companies == "correct" ? "bg-green-500" : guess["res "].companies == "parcial" ? "bg-yellow-500" : ""} rounded-md`}>
-                    {guess.movie.companies.map(c => <p key={c.id} className="bg-black/25 w-full p-1">{c.name}</p>)}
+                  <div
+                    className={`h-full w-full flex-col gap-0.5 align-center flex items-center justify-center ${
+                      guess["res "].companies == "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].companies == "correct"
+                        ? "bg-green-500"
+                        : guess["res "].companies == "parcial"
+                        ? "bg-yellow-500"
+                        : ""
+                    } rounded-md`}
+                  >
+                    {guess.movie.companies.map((c) => (
+                      <p key={c.id} className="bg-black/25 w-full p-1">
+                        {c.name}
+                      </p>
+                    ))}
                   </div>
                 </TableCell>
 
                 {/* Budget */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={` relative h-full w-full align-center ${guess["res "].budget === "incorrect" ? "bg-red-500" : guess["res "].budget === "correct" ? "bg-green-500" : guess["res "].budget === "less" ? "bg-yellow-500" : guess["res "].budget === "more" ? "bg-yellow-500" : ""} h-full flex items-center justify-center rounded-md`}>
+                  <div
+                    className={` relative h-full w-full align-center ${
+                      guess["res "].budget === "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].budget === "correct"
+                        ? "bg-green-500"
+                        : guess["res "].budget === "less"
+                        ? "bg-yellow-500"
+                        : guess["res "].budget === "more"
+                        ? "bg-yellow-500"
+                        : ""
+                    } h-full flex items-center justify-center rounded-md`}
+                  >
                     <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
-                      {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(guess.movie.budget))}
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      }).format(Number(guess.movie.budget))}
                     </p>
-                    {guess["res "].budget === "less" && <ArrowDown size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
-                    {guess["res "].budget === "more" && <ArrowUp size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
+                    {guess["res "].budget === "less" && (
+                      <ArrowDown
+                        size="100%"
+                        strokeWidth={3}
+                        className="absolute z-0 text-zinc-800"
+                      />
+                    )}
+                    {guess["res "].budget === "more" && (
+                      <ArrowUp
+                        size="100%"
+                        strokeWidth={3}
+                        className="absolute z-0 text-zinc-800"
+                      />
+                    )}
                   </div>
                 </TableCell>
                 {/* Release Date */}
                 <TableCell className="flex items-center justify-center">
-                  <div className={` relative h-full w-full max-w-full max-h-full align-center ${guess["res "].releaseDate === "incorrect" ? "bg-red-500" : guess["res "].releaseDate === "correct" ? "bg-green-500" : guess["res "].releaseDate === "less" ? "bg-yellow-500" : guess["res "].releaseDate === "more" ? "bg-yellow-500" : ""} h-full flex items-center justify-center rounded-md`}>
+                  <div
+                    className={` relative h-full w-full max-w-full max-h-full align-center ${
+                      guess["res "].releaseDate === "incorrect"
+                        ? "bg-red-500"
+                        : guess["res "].releaseDate === "correct"
+                        ? "bg-green-500"
+                        : guess["res "].releaseDate === "less"
+                        ? "bg-yellow-500"
+                        : guess["res "].releaseDate === "more"
+                        ? "bg-yellow-500"
+                        : ""
+                    } h-full flex items-center justify-center rounded-md`}
+                  >
                     <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
                       {new Date(guess.movie.releaseDate).toLocaleDateString()}
                     </p>
-                    {guess["res "].releaseDate === "less" && <ArrowDown size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
-                    {guess["res "].releaseDate === "more" && <ArrowUp size="100%" strokeWidth={3} className="absolute z-0 text-zinc-800" />}
+                    {guess["res "].releaseDate === "less" && (
+                      <ArrowDown
+                        size="100%"
+                        strokeWidth={3}
+                        className="absolute z-0 text-zinc-800"
+                      />
+                    )}
+                    {guess["res "].releaseDate === "more" && (
+                      <ArrowUp
+                        size="100%"
+                        strokeWidth={3}
+                        className="absolute z-0 text-zinc-800"
+                      />
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
@@ -265,6 +413,6 @@ export default function Classic() {
           </TableBody>
         </Table>
       </div>
-    </div >
+    </div>
   );
 }
