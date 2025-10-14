@@ -110,9 +110,21 @@ export default function Classic() {
 
   const getCellColor = (value: string) => {
 
-    if (colorBlindActive){
-    
+    if (colorBlindActive){    
       switch (value) {
+        case "correct":
+          return "bg-sky-700";
+        case "incorrect":
+          return "bg-orange-600";
+        case "parcial":
+        case "more":
+        case "less":
+          return "bg-yellow-300";
+        default:
+          return "";
+      }
+    };
+    switch (value) {
         case "correct":
           return "bg-green-500";
         case "incorrect":
@@ -124,7 +136,6 @@ export default function Classic() {
         default:
           return "";
       }
-    };
   };
 
   const [colorBlind, setColorBlind] = useState(
