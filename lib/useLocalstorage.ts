@@ -1,0 +1,46 @@
+import { HistoryItem } from "./types/historyItem";
+
+/**
+ * Adiciona um item no histórico do localStorage.
+ * Cria o array se ainda não existir.
+ */
+export function appendHistoryItem(item: HistoryItem) {
+  if (typeof window === "undefined") return; // garante que só rode no cliente
+
+  // Pega o histórico atual
+  const stored = localStorage.getItem("history");
+  const history: HistoryItem[] = stored ? JSON.parse(stored) : [];
+
+  // Adiciona o novo item
+  history.push(item);
+
+  // Salva de volta como JSON
+  localStorage.setItem("history", JSON.stringify(history));
+}
+
+/**
+ * Lê todo o histórico
+ */
+export function getHistory(): HistoryItem[] {
+  if (typeof window === "undefined") {
+    console.log("getHistory called on server side");
+    return [];
+  }
+
+  const stored = localStorage.getItem("history");
+  return stored ? JSON.parse(stored) : [];
+}
+export function getColorBlind(): boolean {
+  if (typeof window === "undefined") {
+    console.log("getColorBlind called on server side");
+    return false;
+  }
+  return localStorage.getItem("colorBlind") === "true";
+}
+export function setColorBlind(value: boolean) {
+  if (typeof window === "undefined") {
+    console.log("setColorBlind called on server side");
+    return;
+  }
+  localStorage.setItem("colorBlind", value ? "true" : "false");
+}
