@@ -5,6 +5,8 @@ import { useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // pega a data atual no formato yyyy-mm-dd e adiciona no caminho
+  const hrefClassic = "/classic/" + new Date().toISOString().split("T")[0];
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg.png)] bg-cover bg-center">
@@ -31,7 +33,7 @@ export default function Home() {
 
       <div className="flex items-center justify-center flex-1 gap-10 text-center">
         <Link
-          href={"/classic"}
+          href={hrefClassic}
           className="flex flex-col text-white items-start bg-red-500 h-72 w-56 rounded-4xl shadow-xl p-4 gap-2 cursor-pointer hover:scale-105 transition-transform"
         >
           <h1 className="text-3xl font-extrabold">Classico</h1>
