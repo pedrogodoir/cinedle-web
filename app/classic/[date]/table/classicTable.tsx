@@ -40,10 +40,14 @@ type Guess = {
   };
 };
 
-export default function ClassicTable({ date }: { date: string }) {
+type ClassicTableProps = {
+  date: string;
+  colorBlind?: boolean;
+};
+
+export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
-  const [colorBlind, setColorBlind] = useState(getColorBlind());
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
