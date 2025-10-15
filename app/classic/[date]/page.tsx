@@ -28,7 +28,7 @@ export default function Page({ params }: PageProps) {
       {dateExistsInHistory({ date, history }) ? (
         <WinScreenClassic movieId={h?.id} totalAttempts={h?.totalAttempts} />
       ) : (
-        <ClassicTable />
+        <ClassicTable date={date} />
       )}
     </>
   );
