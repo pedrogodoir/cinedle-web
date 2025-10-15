@@ -41,8 +41,7 @@ type Guess = {
   };
 };
 
-export default function ClassicTable() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function ClassicTable({ date }: { date: string }) {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
   const [colorBlind, setColorBlind] = useState(getColorBlind());
@@ -95,9 +94,18 @@ export default function ClassicTable() {
       if (res.data.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3"); // caminho relativo ao public/
         audio.play();
+        
+        // Adicionar ao histórico
+        const newHistoryItem: HistoryItem = {
+          // pega o date do params
+          date: date,
+          id: res.data.movie.id,
+          totalAttempts: guesses.length + 1,
+        };
+        appendHistoryItem(newHistoryItem);
+        
         setIsWin(true);
       }
-
       setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
       setSelectedMovie(null);
     } catch (error) {
