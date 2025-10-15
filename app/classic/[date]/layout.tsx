@@ -17,6 +17,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
 import { getColorBlind } from "@/lib/useLocalstorage";
 import { History } from "@/components/ui/history";
+import WinScreenClassic from "./winScreen/winScreenClassic";
 
 type MovieResult = {
   id: string;
@@ -55,6 +56,7 @@ export default function Classic({ children }: { children: React.ReactNode }) {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [isWin, setIsWin] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,7 +143,14 @@ export default function Classic({ children }: { children: React.ReactNode }) {
         colorBlind={colorBlind}
         setColorBlind={setColorBlind}
       />
-      {children}
+      {isWin ? (
+        <WinScreenClassic
+          movieId={guesses[0]?.movie.id}
+          totalAttempts={guesses.length}
+        />
+      ) : (
+        children
+      )}
     </div>
   );
 }

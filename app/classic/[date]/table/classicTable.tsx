@@ -20,6 +20,7 @@ import {
 import axios from "axios";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import WinScreenClassic from "../winScreen/winScreenClassic";
 
 type MovieResult = {
   id: string;
@@ -49,6 +50,7 @@ export default function ClassicTable() {
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [isWin, setIsWin] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -93,6 +95,7 @@ export default function ClassicTable() {
       if (res.data.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3"); // caminho relativo ao public/
         audio.play();
+        setIsWin(true);
       }
 
       setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
@@ -143,7 +146,12 @@ export default function ClassicTable() {
     }
   };
 
-  return (
+  return isWin ? (
+    <WinScreenClassic
+      movieId={guesses[0]?.movie.id}
+      totalAttempts={guesses.length}
+    />
+  ) : (
     <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
       <div className="flex items-center justify-center gap-6">
         <div className="relative w-72">
@@ -158,9 +166,7 @@ export default function ClassicTable() {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !isLoading) {
-                // Bloqueia múltiplos envios enquanto está carregando
                 if (selectedMovie) {
-                  // Verifica se o filme já foi tentado antes de enviar
                   if (
                     !guesses.some(
                       (guess) => guess.movie.id === Number(selectedMovie.id)
@@ -174,7 +180,6 @@ export default function ClassicTable() {
                 } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
                   handleSelectMovie(results[highlightedIndex]);
                 } else if (results.length > 0) {
-                  // Seleciona o primeiro item válido se nenhum tiver destacado
                   const firstMovie = results.find(
                     (movie) =>
                       !guesses.some(
@@ -189,7 +194,7 @@ export default function ClassicTable() {
                 e.preventDefault();
                 setHighlightedIndex((prev) => {
                   const nextIndex = (prev + 1) % results.length;
-                  scrollToHighlighted(nextIndex); // Rola até o item destacado
+                  scrollToHighlighted(nextIndex);
                   return nextIndex;
                 });
               } else if (e.key === "ArrowUp") {
@@ -197,7 +202,7 @@ export default function ClassicTable() {
                 setHighlightedIndex((prev) => {
                   const nextIndex =
                     (prev - 1 + results.length) % results.length;
-                  scrollToHighlighted(nextIndex); // Rola até o item destacado
+                  scrollToHighlighted(nextIndex);
                   return nextIndex;
                 });
               }
@@ -223,9 +228,8 @@ export default function ClassicTable() {
                   <div
                     key={item.id}
                     onClick={() => handleSelectMovie(item)}
-                    className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${
-                      index === highlightedIndex ? "bg-zinc-700" : ""
-                    }`}
+                    className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${index === highlightedIndex ? "bg-zinc-700" : ""
+                      }`}
                   >
                     <p>{item.title}</p>
                   </div>
@@ -236,7 +240,7 @@ export default function ClassicTable() {
 
         <Button
           onClick={handleSubmitGuess}
-          disabled={!selectedMovie || isLoading} // Desabilita o botão enquanto está carregando
+          disabled={!selectedMovie || isLoading}
           className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed`}
           size={"icon"}
         >
