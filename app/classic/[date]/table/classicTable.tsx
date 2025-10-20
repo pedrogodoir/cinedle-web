@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HistoryItem } from "@/lib/types/historyItem";
-import { Movie } from "@/lib/types/movieType";
+import { MovieResult } from "@/lib/types/resultSearch";
+import { Guess } from "@/lib/types/movieGuess";
 import {
   appendHistoryItem,
   getColorBlind,
@@ -19,27 +20,8 @@ import {
 } from "@/lib/useLocalstorage";
 import axios from "axios";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, RefObject } from "react";
 import WinScreenClassic from "../winScreen/winScreenClassic";
-
-type MovieResult = {
-  id: string;
-  title: string;
-};
-
-type Guess = {
-  movie: Movie;
-  res: {
-    title: string;
-    releaseDate: string;
-    budget: string;
-    genres: string;
-    companies: string;
-    directors: string;
-    actors: string;
-    correct: boolean;
-  };
-};
 
 export default function ClassicTable({ date }: { date: string }) {
   const [search, setSearch] = useState("");
@@ -94,7 +76,7 @@ export default function ClassicTable({ date }: { date: string }) {
       if (res.data.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3"); // caminho relativo ao public/
         audio.play();
-        
+
         // Adicionar ao histórico
         const newHistoryItem: HistoryItem = {
           // pega o date do params
@@ -103,7 +85,7 @@ export default function ClassicTable({ date }: { date: string }) {
           totalAttempts: guesses.length + 1,
         };
         appendHistoryItem(newHistoryItem);
-        
+
         setIsWin(true);
       }
       setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
@@ -163,87 +145,21 @@ export default function ClassicTable({ date }: { date: string }) {
     <div className="flex flex-col items-center flex-1 gap-10 text-center pt-40 pb-40">
       <div className="flex items-center justify-center gap-6">
         <div className="relative w-72">
-          <Input
-            value={selectedMovie ? selectedMovie.title : search}
-            onChange={(e) => {
-              if (selectedMovie) {
-                setSelectedMovie(null);
-              }
-              setSearch(e.target.value);
-              setHighlightedIndex(-1); // Reseta o índice ao digitar
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !isLoading) {
-                if (selectedMovie) {
-                  if (
-                    !guesses.some(
-                      (guess) => guess.movie.id === Number(selectedMovie.id)
-                    )
-                  ) {
-                    handleSubmitGuess();
-                  }
-                } else if (results.length === 1) {
-                  handleSelectMovie(results[0]);
-                  setTimeout(() => handleSubmitGuess(), 0);
-                } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
-                  handleSelectMovie(results[highlightedIndex]);
-                } else if (results.length > 0) {
-                  const firstMovie = results.find(
-                    (movie) =>
-                      !guesses.some(
-                        (guess) => guess.movie.id === Number(movie.id)
-                      )
-                  );
-                  if (firstMovie) {
-                    handleSelectMovie(firstMovie);
-                  }
-                }
-              } else if (e.key === "ArrowDown" || e.key === "Tab") {
-                e.preventDefault();
-                setHighlightedIndex((prev) => {
-                  const nextIndex = (prev + 1) % results.length;
-                  scrollToHighlighted(nextIndex);
-                  return nextIndex;
-                });
-              } else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                setHighlightedIndex((prev) => {
-                  const nextIndex =
-                    (prev - 1 + results.length) % results.length;
-                  scrollToHighlighted(nextIndex);
-                  return nextIndex;
-                });
-              }
-            }}
-            className="border-3 border-zinc-700 p-2 px-3.5 bg-zinc-950 rounded-4xl text-base text-white w-full"
-            placeholder="Inception"
-            type="text"
+          <SearchInput
+            search={search}
+            setSearch={setSearch}
+            results={results}
+            setResults={setResults}
+            selectedMovie={selectedMovie}
+            setSelectedMovie={setSelectedMovie}
+            guesses={guesses}
+            handleSubmitGuess={handleSubmitGuess}
+            isLoading={isLoading}
+            dropdownRef={dropdownRef as RefObject<HTMLDivElement>}
+            highlightedIndex={highlightedIndex}
+            setHighlightedIndex={setHighlightedIndex}
+            scrollToHighlighted={scrollToHighlighted}
           />
-
-          {search && results.length > 0 && (
-            <div
-              ref={dropdownRef}
-              className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto"
-            >
-              {results
-                .filter(
-                  (movie) =>
-                    !guesses.some(
-                      (guess) => guess.movie.id === Number(movie.id)
-                    )
-                )
-                .map((item, index) => (
-                  <div
-                    key={item.id}
-                    onClick={() => handleSelectMovie(item)}
-                    className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${index === highlightedIndex ? "bg-zinc-700" : ""
-                      }`}
-                  >
-                    <p>{item.title}</p>
-                  </div>
-                ))}
-            </div>
-          )}
         </div>
 
         <Button
