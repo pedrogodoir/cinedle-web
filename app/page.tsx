@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
-import { Modal } from "./components/modal/Modal";
+import { Modal } from "@/components/ui/Modal";
 import { useState } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
+import { Header } from "@/components/ui/header";
+import { Menu } from "lucide-react";
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // pega a data atual no formato yyyy-mm-dd e adiciona no caminho
@@ -10,14 +12,16 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg.png)] bg-cover bg-center">
-      <header className="relative w-full py-4">
-        <p className="text-white text-2xl font-bold text-center">Cinedle</p>
-
-        <IoSettingsOutline
-          size={40}
-          className="absolute right-140 top-1/2 -translate-y-1/2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors cursor-pointer"
-          onClick={() => setIsModalOpen(true)}
-        />
+      <header className="w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
+        <div></div>
+        <Header />
+        <div className="flex items-center justify-center gap-4">
+          <Menu
+            size={40}
+            className="bg-white text-black rounded-full p-2  hover:bg-red-500 transition-colors cursor-pointer"
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
       </header>
 
       <Modal
@@ -26,7 +30,7 @@ export default function Home() {
           setIsModalOpen(false);
         }}
         colorBlind={false}
-        setColorBlind={() => {}}
+        setColorBlind={() => { }}
       >
         <p></p>
       </Modal>

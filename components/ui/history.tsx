@@ -21,9 +21,12 @@ export function History() {
   return (
     <div>
       <Dialog>
-        <DialogTrigger asChild>
+        <DialogTrigger className="h-full rounded-full flex justify-between items-center cursor-pointer py-2 px-1" asChild>
           <Button variant="default">
-            <CalendarIcon />
+            <CalendarIcon 
+              size={24}
+              className="  hover:bg-gray-200 transition-colors"
+            />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">

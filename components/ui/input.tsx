@@ -45,6 +45,7 @@ export function SearchInput({
         onKeyDown={(e) => {
           if (e.key === "Enter" && !isLoading) {
             if (selectedMovie) {
+              // Envia o palpite se um filme já estiver selecionado
               if (
                 !guesses.some(
                   (guess) => guess.movie.id === Number(selectedMovie.id)
@@ -52,23 +53,19 @@ export function SearchInput({
               ) {
                 handleSubmitGuess();
               }
-            } else if (results.length === 1) {
-              setSelectedMovie(results[0]);
-              setTimeout(() => handleSubmitGuess(), 0);
-            } else if (highlightedIndex >= 0 && results[highlightedIndex]) {
-              setSelectedMovie(results[highlightedIndex]);
             } else if (results.length > 0) {
-              const firstMovie = results.find(
+              // Filtra o primeiro filme válido (não tentado)
+              const firstValidMovie = results.find(
                 (movie) =>
-                  !guesses.some(
-                    (guess) => guess.movie.id === Number(movie.id)
-                  )
+                  !guesses.some((guess) => guess.movie.id === Number(movie.id))
               );
-              if (firstMovie) {
-                setSelectedMovie(firstMovie);
+
+              if (firstValidMovie) {
+                setSelectedMovie(firstValidMovie);
+                setTimeout(() => handleSubmitGuess(), 0); // Envia o palpite automaticamente
               }
             }
-          } else if (e.key === "ArrowDown" || e.key === "Tab") {
+          } else if (e.key === "ArrowDown") {
             e.preventDefault();
             setHighlightedIndex((prev) => {
               const nextIndex = (prev + 1) % results.length;

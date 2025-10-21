@@ -7,7 +7,9 @@ import WinScreenClassic from "./winScreen/winScreenClassic";
 import axios from "axios";
 import { History } from "@/components/ui/history";
 import { IoSettingsOutline } from "react-icons/io5";
-import { Modal } from "@/app/components/modal/Modal";
+import { Modal } from "@/components/ui/Modal";
+import { Menu } from "lucide-react";
+import { Header } from "@/components/ui/header";
 
 interface PageProps {
   params: { date: string };
@@ -62,13 +64,14 @@ export default function Page({ params }: PageProps) {
   const h = history.find((item) => item.date.split("T")[0] === date);
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
-      <header className="relative w-full py-4 flex items-center  justify-center text-white text-5xl font-extrabold px-4">
-        <p className="z-10">Cinedle</p>
-        <div className="flex items-center justify-center absolute right-100 gap-4 top-1/2 -translate-y-1/2">
+      <header className="w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
+        <div></div>
+        <Header />
+        <div className="flex items-center justify-center gap-4">
           <History />
-          <IoSettingsOutline
+          <Menu
             size={40}
-            className="bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors cursor-pointer"
+            className="bg-white text-black rounded-full p-2  hover:bg-red-500 transition-colors cursor-pointer"
             onClick={() => setIsModalOpen(true)}
           />
         </div>
