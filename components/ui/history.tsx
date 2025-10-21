@@ -29,7 +29,7 @@ export function History() {
             />
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-zinc-950 rounded-md p-4 border-3 border-zinc-700">
           <DialogHeader>
             <DialogTitle>History</DialogTitle>
             <DialogDescription>View past games here.</DialogDescription>

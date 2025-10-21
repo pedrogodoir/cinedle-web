@@ -185,7 +185,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           <TableRow>
             <TableHead>Title</TableHead>
             <TableHead>Genre(s)</TableHead>
-            <TableHead>Actor</TableHead>
+            <TableHead>Lead Actor</TableHead>
             <TableHead>Director(s)</TableHead>
             <TableHead>Companies</TableHead>
             <TableHead>Budget</TableHead>
