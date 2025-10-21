@@ -11,7 +11,7 @@ export default function Home() {
   const hrefClassic = "/classic/" + new Date().toISOString().split("T")[0];
 
   return (
-    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg.png)] bg-cover bg-center">
+    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg.webp)] bg-cover bg-center">
       <header className="w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
         <div></div>
         <Header />

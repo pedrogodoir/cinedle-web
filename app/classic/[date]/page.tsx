@@ -63,7 +63,7 @@ export default function Page({ params }: PageProps) {
 
   const h = history.find((item) => item.date.split("T")[0] === date);
   return (
-    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.png)] bg-size-[100vw] bg-no-repeat">
+    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.webp)] bg-size-[100vw] bg-no-repeat">
       <header className="w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
         <div></div>
         <Header />
