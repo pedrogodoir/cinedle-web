@@ -66,7 +66,13 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     setIsLoading(true); // Inicia o loading
     try {
       const res = await axios.get(
-        `https://cinedle-backend.onrender.com/classic-games/guess/${selectedMovie.id}`
+        `https://cinedle-backend.onrender.com/classic-games/guess`,
+        {
+          params: {
+            movie_id: selectedMovie.id,
+            date: date,
+          },
+        }
       );
       console.log(res.data);
 
@@ -179,7 +185,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           <TableRow>
             <TableHead>Title</TableHead>
             <TableHead>Genre(s)</TableHead>
-            <TableHead>Actor</TableHead>
+            <TableHead>Lead Actor</TableHead>
             <TableHead>Director(s)</TableHead>
             <TableHead>Companies</TableHead>
             <TableHead>Budget</TableHead>
@@ -295,7 +301,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
                   )} h-full flex items-center justify-center rounded-md`}
                 >
                   <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
-                    {new Date(guess.movie.releaseDate).toLocaleDateString()}
+                    {new Date(guess.movie.releaseDate).getFullYear()}
                   </p>
                   {guess.res.releaseDate === "less" && (
                     <ArrowDown

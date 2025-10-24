@@ -178,7 +178,6 @@ function Calendar({
               //fuso horário deu bo, isso aqui   é uma gambiarra pra comparar só a data
               const temp = item.date.split("T")[0];
               const [year, month, day] = temp.split("-").map(Number);
-              console.log(year, month, day);
               const itemDate = new Date(year, month - 1, day); // month - 1 porque Date usa 0-11 para meses :(
               const dayDate = props.day.date;
 
