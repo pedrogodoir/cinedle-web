@@ -196,18 +196,23 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           {guesses.map((guess) => (
             <TableRow key={guess.movie.id}>
               {/* Title */}
-              <TableCell className="flex items-center justify-center">
+              <TableCell
+                className={`flex items-center justify-center  bg-repeat-x bg-bottom`}
+              >
                 <div
-                  className={`h-full w-full align-center flex items-center justify-center ${getCellColor(
-                    guess.res.title
-                  )} rounded-md`}
+                  className={`  h-full w-full align-center flex items-center justify-center  bg-cover rounded-md`}
+                  style={{
+                    backgroundImage: `url(${guess.movie.poster})`,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                  }}
                 >
                   <p className="bg-black/25 w-full p-1">{guess.movie.title}</p>
                 </div>
               </TableCell>
 
               {/* Genre */}
-              <TableCell className="flex items-center justify-center">
+              <TableCell className="fle</TableCell>x items-center justify-center">
                 <div
                   className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${getCellColor(
                     guess.res.genres
