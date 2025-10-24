@@ -68,7 +68,7 @@ export default function Page({ params }: PageProps) {
         <div></div>
         <Header />
         <div className="flex items-center justify-center gap-4">
-          <History />
+          <History date={date}/>
           <Menu
             size={40}
             className="bg-white text-black rounded-full p-2  hover:bg-red-500 transition-colors cursor-pointer"

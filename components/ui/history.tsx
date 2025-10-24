@@ -10,23 +10,33 @@ import {
 } from "@/components/ui/dialog";
 import { getHistory } from "@/lib/useLocalstorage";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useState } from "react";
 import { Calendar } from "./calendarHistory";
 
 const firstDay = new Date("2025-10-10");
 
-export function History() {
+interface HistoryProps {
+  date: string;
+}
+
+export function History({ date }: HistoryProps) {
+  console.log(date);
   const history = getHistory();
-  const [date, setDate] = useState<Date | undefined>(new Date());
+
+  // Converte a string de data para um objeto Date no fuso horário local
+  const parseLocalDate = (dateString: string): Date => {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day); // month - 1 porque Date usa 0-11 para meses
+  };
+
   return (
     <div>
       <Dialog>
-        <DialogTrigger className="h-full rounded-full flex justify-between items-center cursor-pointer py-2 px-1" asChild>
+        <DialogTrigger
+          className="h-full rounded-full flex justify-between items-center cursor-pointer py-2 px-1"
+          asChild
+        >
           <Button variant="default">
-            <CalendarIcon 
-              size={24}
-              className="  hover:bg-gray-200 transition-colors"
-            />
+            <CalendarIcon size={24} className="hover:bg-gray-200 transition-colors" />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-zinc-950 rounded-md p-4 border-3 border-zinc-700">
@@ -37,8 +47,7 @@ export function History() {
           <div className="body">
             <Calendar
               mode="single"
-              selected={date}
-              onSelect={setDate}
+              selected={parseLocalDate(date)} // Usa a função para converter corretamente
               data={history}
               //o min-h-450 é para evitar que o calendário mude de tamanho quando muda de mês
               className="w-full min-h-[450px]"
