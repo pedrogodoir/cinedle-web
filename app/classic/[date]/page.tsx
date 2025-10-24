@@ -1,19 +1,16 @@
 "use client";
+import { Header } from "@/components/ui/header";
+import { History } from "@/components/ui/history";
+import { Modal } from "@/components/ui/Modal";
 import { HistoryItem } from "@/lib/types/historyItem";
 import { getColorBlind, getHistory } from "@/lib/useLocalstorage";
-import ClassicTable from "./table/classicTable";
-import React, { use, useEffect, useRef, useState } from "react";
-import WinScreenClassic from "./winScreen/winScreenClassic";
 import axios from "axios";
-import { History } from "@/components/ui/history";
-import { IoSettingsOutline } from "react-icons/io5";
-import { Modal } from "@/components/ui/Modal";
 import { Menu } from "lucide-react";
-import { Header } from "@/components/ui/header";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import ClassicTable from "./table/classicTable";
+import WinScreenClassic from "./winScreen/winScreenClassic";
 
-interface PageProps {
-  params: { date: string };
-}
 type MovieResult = {
   id: string;
   title: string;
@@ -29,7 +26,7 @@ function dateExistsInHistory({
   return history.some((item) => item.date.split("T")[0] === date);
 }
 
-export default function Page({ params }: PageProps) {
+export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
@@ -58,7 +55,7 @@ export default function Page({ params }: PageProps) {
     return () => clearTimeout(handler);
   }, [search]);
 
-  const { date } = use(params as unknown as Promise<PageProps["params"]>);
+  const date = useParams<{ date: string }>().date;
   const history = getHistory();
 
   const h = history.find((item) => item.date.split("T")[0] === date);

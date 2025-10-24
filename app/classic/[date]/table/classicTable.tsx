@@ -61,12 +61,6 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     return () => clearTimeout(handler);
   }, [search]);
 
-  const handleSelectMovie = (movie: MovieResult) => {
-    setSelectedMovie(movie);
-    setSearch("");
-    setResults([]);
-  };
-
   const handleSubmitGuess = async () => {
     if (!selectedMovie) return;
     setIsLoading(true); // Inicia o loading
