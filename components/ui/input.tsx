@@ -32,7 +32,7 @@ export function SearchInput({
   scrollToHighlighted: (index: number) => void;
 }) {
   return (
-    <div className="relative w-72">
+    <div className="relative w-72 max-[500px]:w-56 max-[350px]:w-40">
       <input
         value={selectedMovie ? selectedMovie.title : search}
         onChange={(e) => {

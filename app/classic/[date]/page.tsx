@@ -63,15 +63,14 @@ export default function Page({ params }: PageProps) {
 
   const h = history.find((item) => item.date.split("T")[0] === date);
   return (
-    <div className="flex flex-col items-center justify-items-center min-h-screen bg-black bg-[url(/bg-classic.webp)] bg-size-[100vw] bg-no-repeat">
-      <header className="w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
+    <div className="flex flex-col items-center justify-items-center min-h-screen min-w-screen bg-black bg-[url(/bg-classic.webp)] bg-center bg-cover bg-no-repeat">
+      <header className="w-screen md:w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
         <div></div>
         <Header />
-        <div className="flex items-center justify-center gap-4">
-          <History date={date}/>
+        <div className="flex items-center justify-center gap-4 max-[500px]:gap-2 ">
+          <History date={date} />
           <Menu
-            size={40}
-            className="bg-white text-black rounded-full p-2  hover:bg-red-500 transition-colors cursor-pointer"
+            className="bg-white text-black rounded-full p-2 hover:bg-red-500 transition-colors cursor-pointer w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"
             onClick={() => setIsModalOpen(true)}
           />
         </div>
@@ -84,6 +83,7 @@ export default function Page({ params }: PageProps) {
         colorBlind={colorBlind}
         setColorBlind={setColorBlind}
       />
+
       {dateExistsInHistory({ date, history }) ? (
         <WinScreenClassic movieId={h?.id} totalAttempts={h?.totalAttempts} />
       ) : (

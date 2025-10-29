@@ -36,7 +36,7 @@ export function History({ date }: HistoryProps) {
           asChild
         >
           <Button variant="default">
-            <CalendarIcon size={24} className="hover:bg-gray-200 transition-colors" />
+            <CalendarIcon className="hover:bg-gray-200 transition-colors w-6 h-6 max-[500px]:w-4 max-[500px]:h-4 max-[350px]:h-2 max-[350px]:w-2" />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-zinc-950 rounded-md p-4 border-3 border-zinc-700">

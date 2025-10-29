@@ -34,15 +34,20 @@ export function Header() {
     if (currentPath === "/")
       return (
         <div className="flex">
-          <p className="z-10 text-5xl font-extrabold">Cine</p>
-          <p className="z-10 text-5xl font-extrabold text-red-500">dle</p>
+          <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold">Cine</p>
+          <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-red-500">dle</p>
         </div>
       );
     if (currentPath.startsWith("/classic"))
-      return <p className="z-10 text-5xl font-extrabold text-red-500">Classic</p>;
+      return <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-red-500">Classic</p>;
     if (currentPath.startsWith("/poster"))
-      return <p className="z-10 text-5xl font-extrabold text-blue-500">Poster</p>;
-    return "Cinedle";
+      return <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-blue-500">Poster</p>;
+    return (
+        <div className="flex">
+          <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold">Cine</p>
+          <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-red-500">dle</p>
+        </div>
+      );
   };
 
   // Função para navegar para outra rota
@@ -64,7 +69,7 @@ export function Header() {
   ];
 
   return (
-    <header className="relative w-full py-4 flex items-center justify-between text-white text-5xl font-extrabold px-4">
+    <header className="w-full py-4 flex items-center justify-center text-white text-5xl font-extrabold px-4">
       {/* Dropdown para modos */}
       <div className="relative" ref={dropdownRef}>
         {currentPath == "/" ? (
@@ -75,7 +80,7 @@ export function Header() {
             className="flex items-center justify-center gap-2 transition cursor-pointer"
           >
             {getHeaderText()}
-            <ChevronDownIcon size={40} />
+            <ChevronDownIcon className="w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"/>
           </button>
         )}
 
