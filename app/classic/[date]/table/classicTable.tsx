@@ -61,12 +61,6 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     return () => clearTimeout(handler);
   }, [search]);
 
-  const handleSelectMovie = (movie: MovieResult) => {
-    setSelectedMovie(movie);
-    setSearch("");
-    setResults([]);
-  };
-
   const handleSubmitGuess = async () => {
     if (!selectedMovie) return;
     setIsLoading(true); // Inicia o loading
@@ -186,12 +180,11 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         </Button>
       </div>
 
-      {/* Container com scroll horizontal */}
-      <div className="w-full overflow-x-auto">
-        <Table className="bg-zinc-950 min-w-max">
+      <div className="overflow-x-auto max-w-full px-4">
+        <Table className="bg-zinc-950">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">Title</TableHead>
+              <TableHead className="w-200px">Title</TableHead>
               <TableHead>Genre(s)</TableHead>
               <TableHead>Lead Actor</TableHead>
               <TableHead>Director(s)</TableHead>
@@ -204,15 +197,16 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
                 {/* Title */}
-                <TableCell className="flex items-center justify-center">
+                <TableCell className="flex items-center justify-center  bg-repeat-x bg-bottom">
                   <div
-                    className={`h-full w-full align-center flex items-center justify-center ${getCellColor(
-                      guess.res.title
-                    )} rounded-md`}
+                  className={`  h-full w-full align-center flex items-center justify-center  bg-cover rounded-md`}
+                  style={{
+                    backgroundImage: `url(${guess.movie.poster})`,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                  }}
                   >
-                    <p className="bg-black/25 w-full p-1">
-                      {guess.movie.title}
-                    </p>
+                    <p className="bg-black/25 w-full p-1">{guess.movie.title}</p>
                   </div>
                 </TableCell>
 

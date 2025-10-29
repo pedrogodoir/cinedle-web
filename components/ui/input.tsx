@@ -97,9 +97,7 @@ export function SearchInput({
           {results
             .filter(
               (movie) =>
-                !guesses.some(
-                  (guess) => guess.movie.id === Number(movie.id)
-                )
+                !guesses.some((guess) => guess.movie.id === Number(movie.id))
             )
             .map((item, index) => (
               <div

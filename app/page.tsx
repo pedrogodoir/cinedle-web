@@ -1,10 +1,9 @@
 "use client";
-import Link from "next/link";
-import { Modal } from "@/components/ui/Modal";
-import { useState } from "react";
-import { IoSettingsOutline } from "react-icons/io5";
 import { Header } from "@/components/ui/header";
+import { Modal } from "@/components/ui/Modal";
 import { Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // pega a data atual no formato yyyy-mm-dd e adiciona no caminho
@@ -31,7 +30,7 @@ export default function Home() {
           setIsModalOpen(false);
         }}
         colorBlind={false}
-        setColorBlind={() => { }}
+        setColorBlind={() => {}}
       >
         <p></p>
       </Modal>

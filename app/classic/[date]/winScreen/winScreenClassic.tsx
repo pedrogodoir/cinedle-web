@@ -52,13 +52,11 @@ function WinScreenClassic({
   return (
     <div className="flex flex-col items-center justify-center flex-1 gap-10 text-center pt-20 pb-20">
       <h1 className="text-4xl font-extrabold text-white">🎉 You Win! 🎉</h1>
-      <div className="flex bg-zinc-950 p-6 border-zinc-700 border-3 rounded-xl gap-8 shadow-lg">
+      <div className="flex bg-zinc-950 p-6 border-zinc-700 border-3 rounded-xl gap-8 shadow-lg max-w-4xl">
         {/* Poster */}
-        <div className="bg-zinc-600 h-96 w-64 flex items-center justify-center text-white text-lg font-semibold">
-          "No Poster Available"
-
-          {/* Codigo pronto para quando haver poster */}
-          {/* {movie?.poster ? (
+        <div className=" h-96 w-64 flex items-center justify-center text-white text-lg font-semibold">
+          {/* "No Poster Available" Codigo pronto para quando haver poster */}
+          {movie?.poster ? (
             <img
               src={movie.poster}
               alt={`${movie.title} Poster`}
@@ -66,7 +64,7 @@ function WinScreenClassic({
             />
           ) : (
             "No Poster Available"
-          )} */}
+          )}
         </div>
 
         {/* Movie Details */}
@@ -76,10 +74,10 @@ function WinScreenClassic({
             <p className="text-lg text-zinc-400">
               {movie?.releaseDate
                 ? new Date(movie.releaseDate).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
                 : "Unknown Release Date"}
             </p>
           </div>
@@ -87,9 +85,9 @@ function WinScreenClassic({
             <span className="font-semibold">Budget:</span>{" "}
             {movie?.budget
               ? new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-              }).format(Number(movie.budget))
+                  style: "currency",
+                  currency: "USD",
+                }).format(Number(movie.budget))
               : "Unknown Budget"}
           </p>
           <p className="text-md">
