@@ -181,7 +181,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
       </div>
 
       <div className="overflow-x-auto max-w-full px-4">
-        <Table className="bg-zinc-950">
+        <Table className="bg-zinc-950 min-w-max">
           <TableHeader>
             <TableRow>
               <TableHead className="w-200px">Title</TableHead>
@@ -197,7 +197,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
                 {/* Title */}
-                <TableCell className="flex items-center justify-center  bg-repeat-x bg-bottom">
+                <TableCell className="flex items-center justify-center bg-repeat-x bg-bottom">
                   <div
                   className={`  h-full w-full align-center flex items-center justify-center  bg-cover rounded-md`}
                   style={{
