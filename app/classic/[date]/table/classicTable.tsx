@@ -47,7 +47,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
       const fetchData = async () => {
         try {
           const res = await axios.get(
-            `https://cinedle-backend.onrender.com/movies/summary/${search}`
+            `${process.env.NEXT_PUBLIC_API_URL}/movies/summary/${search}`
           );
           console.log(res.data);
           setResults(Array.isArray(res.data) ? res.data : []);
@@ -66,7 +66,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     setIsLoading(true); // Inicia o loading
     try {
       const res = await axios.get(
-        `https://cinedle-backend.onrender.com/classic-games/guess`,
+        `${process.env.NEXT_PUBLIC_API_URL}/classic-games/guess`,
         {
           params: {
             movie_id: selectedMovie.id,

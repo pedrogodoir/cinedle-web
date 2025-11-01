@@ -38,7 +38,7 @@ function WinScreenClassic({
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `https://cinedle-backend.onrender.com/movies/${movieId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/movies/${movieId}`
         );
         setMovie(res.data);
         console.log("chegou aqui no winscreen");
