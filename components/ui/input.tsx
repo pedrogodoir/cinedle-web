@@ -31,6 +31,17 @@ export function SearchInput({
   setHighlightedIndex: React.Dispatch<React.SetStateAction<number>>;
   scrollToHighlighted: (index: number) => void;
 }) {
+
+  const validResults = results.filter(
+    (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
+  );
+
+  React.useEffect(() => {
+    if (highlightedIndex >= 0 && highlightedIndex < validResults.length) {
+      setSelectedMovie(validResults[highlightedIndex]);
+    }
+  }, [highlightedIndex, validResults, setSelectedMovie]);
+
   return (
     <div className="relative w-72 max-[500px]:w-56 max-[350px]:w-40">
       <input
@@ -41,6 +52,13 @@ export function SearchInput({
           }
           setSearch(e.target.value);
           setHighlightedIndex(-1); // Reseta o índice ao digitar
+        }}
+        onBlur={() => {
+          // Delay para permitir o clique no dropdown antes de fechar
+          setTimeout(() => {
+            setSearch("");
+            setHighlightedIndex(-1);
+          }, 200);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !isLoading) {
@@ -54,6 +72,7 @@ export function SearchInput({
                 handleSubmitGuess();
               }
             } else if (results.length > 0) {
+
               // Filtra o primeiro filme válido (não tentado)
               const firstValidMovie = results.find(
                 (movie) =>
@@ -72,6 +91,7 @@ export function SearchInput({
               scrollToHighlighted(nextIndex);
               return nextIndex;
             });
+            console.log(selectedMovie);
           } else if (e.key === "ArrowUp") {
             e.preventDefault();
             setHighlightedIndex((prev) => {
@@ -79,6 +99,7 @@ export function SearchInput({
               scrollToHighlighted(nextIndex);
               return nextIndex;
             });
+            console.log(selectedMovie);
           }
         }}
         className={cn(
@@ -102,10 +123,14 @@ export function SearchInput({
             .map((item, index) => (
               <div
                 key={item.id}
-                onClick={() => setSelectedMovie(item)}
-                className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${
-                  index === highlightedIndex ? "bg-zinc-700" : ""
-                }`}
+                onClick={() => {
+                  setSelectedMovie(item);
+                  setHighlightedIndex(index);
+                  setSearch("");
+                  setTimeout(() => handleSubmitGuess(), 0);
+                }}
+                className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${index === highlightedIndex ? "bg-zinc-700" : ""
+                  }`}
               >
                 <p>{item.title}</p>
               </div>

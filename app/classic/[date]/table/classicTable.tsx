@@ -199,14 +199,14 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
                 {/* Title */}
                 <TableCell className="flex items-center justify-center bg-repeat-x bg-bottom">
                   <div
-                  className={`  h-full w-full align-center flex items-center justify-center  bg-cover rounded-md`}
+                  className={` text-wrap h-full w-[200px] align-center flex items-center justify-center max-w-md  bg-cover rounded-md`}
                   style={{
                     backgroundImage: `url(${guess.movie.poster})`,
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                   }}
                   >
-                    <p className="bg-black/25 w-full p-1">{guess.movie.title}</p>
+                    <p className="bg-black/25 p-1 w-full break-words whitespace-normal">{guess.movie.title}</p>
                   </div>
                 </TableCell>
 
