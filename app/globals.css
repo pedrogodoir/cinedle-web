@@ -126,20 +126,29 @@
 .dropdown-scroll::-webkit-scrollbar {
   background-color: transparent;
   width: 8px;
-  /* Largura da barra */
+  /* Largura da barra vertical */
+  height: 8px;
+  /* Altura da barra horizontal */
 }
 
 .dropdown-scroll::-webkit-scrollbar-thumb {
   background-color: #525252;
-  /* Cor da "thumb" */
   border-radius: 4px;
-  /* Arredondamento */
 }
 
 .dropdown-scroll::-webkit-scrollbar-track {
   margin-top: 4px;
   margin-bottom: 4px;
+  margin-left: 4px;
+  /* Margem para horizontal */
+  margin-right: 4px;
+  /* Margem para horizontal */
   border-radius: 4px;
   background-color: transparent;
-  /* Cor do "track" */
+}
+
+/* Para Firefox */
+.dropdown-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #525252 transparent;
 }

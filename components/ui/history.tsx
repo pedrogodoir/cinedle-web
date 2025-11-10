@@ -19,7 +19,6 @@ interface HistoryProps {
 }
 
 export function History({ date }: HistoryProps) {
-  console.log(date);
   const history = getHistory();
 
   // Converte a string de data para um objeto Date no fuso horário local

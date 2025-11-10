@@ -54,7 +54,7 @@ function WinScreenClassic({
       <h1 className="text-4xl font-extrabold text-white">🎉 You Win! 🎉</h1>
       <div className="flex bg-zinc-950 p-6 border-zinc-700 border-3 rounded-xl gap-8 shadow-lg max-w-4xl">
         {/* Poster */}
-        <div className=" h-96 w-64 flex items-center justify-center text-white text-lg font-semibold">
+        <div className=" h-96 w-64 min-w-64 flex items-center justify-center text-white text-lg font-semibold">
           {/* "No Poster Available" Codigo pronto para quando haver poster */}
           {movie?.poster ? (
             <img

@@ -15,8 +15,9 @@ import { MovieResult } from "@/lib/types/resultSearch";
 import { Guess } from "@/lib/types/movieGuess";
 import {
   appendHistoryItem,
-  getColorBlind,
-  getHistory,
+  appendTryClassic,
+  clearTryClassic, // Adicione esta linha
+  getTryClassic,
 } from "@/lib/useLocalstorage";
 import axios from "axios";
 import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
@@ -49,7 +50,6 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           const res = await axios.get(
             `${process.env.NEXT_PUBLIC_API_URL}/movies/summary/${search}`
           );
-          console.log(res.data);
           setResults(Array.isArray(res.data) ? res.data : []);
         } catch {
           setResults([]);
@@ -60,6 +60,21 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
 
     return () => clearTimeout(handler);
   }, [search]);
+
+  useEffect(() => {
+    // Carrega as tentativas do localStorage quando o componente monta
+    const storedGuesses = getTryClassic(date);
+
+    if (storedGuesses.length > 0) {
+      setGuesses(storedGuesses);
+
+      // Verifica se a última tentativa foi uma vitória
+      const lastGuess = storedGuesses[0];
+      if (lastGuess.res.correct === true) {
+        setIsWin(true);
+      }
+    }
+  }, [date]); // Recarrega se a data mudar
 
   const handleSubmitGuess = async () => {
     if (!selectedMovie) return;
@@ -74,7 +89,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           },
         }
       );
-      console.log(res.data);
+
 
       // Tocar som se for correto
       if (res.data.res.correct === true) {
@@ -90,9 +105,16 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         };
         appendHistoryItem(newHistoryItem);
 
+        // Limpar as tentativas do localStorage quando acertar
+        clearTryClassic(date);
+
         setIsWin(true);
+      } else {
+        appendTryClassic(res.data, date);
       }
+
       setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
+      console.log(guesses);
       setSelectedMovie(null);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
@@ -180,7 +202,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         </Button>
       </div>
 
-      <div className="overflow-x-auto max-w-full px-4">
+      <div className="dropdown-scroll overflow-x-auto max-w-full px-4">
         <Table className="bg-zinc-950 min-w-max">
           <TableHeader>
             <TableRow>
@@ -199,12 +221,12 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
                 {/* Title */}
                 <TableCell className="flex items-center justify-center bg-repeat-x bg-bottom">
                   <div
-                  className={` text-wrap h-full w-[200px] align-center flex items-center justify-center max-w-md  bg-cover rounded-md`}
-                  style={{
-                    backgroundImage: `url(${guess.movie.poster})`,
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                  }}
+                    className={` text-wrap h-full w-[200px] align-center flex items-center justify-center max-w-md  bg-cover rounded-md`}
+                    style={{
+                      backgroundImage: `url(${guess.movie.poster})`,
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }}
                   >
                     <p className="bg-black/25 p-1 w-full break-words whitespace-normal">{guess.movie.title}</p>
                   </div>

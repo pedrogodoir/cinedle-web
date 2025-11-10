@@ -43,7 +43,6 @@ export default function Page() {
           const res = await axios.get(
             `${process.env.NEXT_PUBLIC_API_URL}/movies/summary/${search}`
           );
-          console.log(res.data);
           setResults(Array.isArray(res.data) ? res.data : []);
         } catch {
           setResults([]);
