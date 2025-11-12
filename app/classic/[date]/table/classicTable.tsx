@@ -30,36 +30,9 @@ type ClassicTableProps = {
 };
 
 export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
-  const [search, setSearch] = useState("");
-  const [results, setResults] = useState<MovieResult[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [isWin, setIsWin] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!search) {
-      setResults([]);
-      return;
-    }
-    const handler = setTimeout(() => {
-      const fetchData = async () => {
-        try {
-          const res = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/movies/summary/${search}`
-          );
-          setResults(Array.isArray(res.data) ? res.data : []);
-        } catch {
-          setResults([]);
-        }
-      };
-      fetchData();
-    }, 250);
-
-    return () => clearTimeout(handler);
-  }, [search]);
 
   useEffect(() => {
     // Carrega as tentativas do localStorage quando o componente monta
@@ -76,60 +49,40 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     }
   }, [date]); // Recarrega se a data mudar
 
-  const handleSubmitGuess = async () => {
-    if (!selectedMovie) return;
-    setIsLoading(true); // Inicia o loading
+  const handleSubmitGuess = async (movie: MovieResult) => {
+    setIsLoading(true);
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/classic-games/guess`,
         {
           params: {
-            movie_id: selectedMovie.id,
+            movie_id: movie.id,
             date: date,
           },
         }
       );
 
-
-      // Tocar som se for correto
       if (res.data.res.correct === true) {
-        const audio = new Audio("/sounds/correct_guess.mp3"); // caminho relativo ao public/
+        const audio = new Audio("/sounds/correct_guess.mp3");
         audio.play();
 
-        // Adicionar ao histórico
         const newHistoryItem: HistoryItem = {
-          // pega o date do params
           date: date,
           id: res.data.movie.id,
           totalAttempts: guesses.length + 1,
         };
         appendHistoryItem(newHistoryItem);
-
-        // Limpar as tentativas do localStorage quando acertar
         clearTryClassic(date);
-
         setIsWin(true);
       } else {
         appendTryClassic(res.data, date);
       }
 
       setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
-      console.log(guesses);
-      setSelectedMovie(null);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
     } finally {
-      setIsLoading(false); // Finaliza o loading
-    }
-  };
-
-  const scrollToHighlighted = (index: number) => {
-    const dropdown = dropdownRef.current;
-    if (!dropdown) return;
-
-    const item = dropdown.children[index] as HTMLElement;
-    if (item) {
-      item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      setIsLoading(false);
     }
   };
 
@@ -169,38 +122,12 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     />
   ) : (
     <div className="flex flex-col flex-1 gap-10 text-center pt-40 pb-40 max-w-full">
-      <div className="flex items-center justify-center gap-6">
-        <div className="relative">
-          <SearchInput
-            search={search}
-            setSearch={setSearch}
-            results={results}
-            setResults={setResults}
-            selectedMovie={selectedMovie}
-            setSelectedMovie={setSelectedMovie}
-            guesses={guesses}
-            handleSubmitGuess={handleSubmitGuess}
-            isLoading={isLoading}
-            dropdownRef={dropdownRef as RefObject<HTMLDivElement>}
-            highlightedIndex={highlightedIndex}
-            setHighlightedIndex={setHighlightedIndex}
-            scrollToHighlighted={scrollToHighlighted}
-          />
-        </div>
-
-        <Button
-          onClick={handleSubmitGuess}
-          disabled={!selectedMovie || isLoading}
-          className={`bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed`}
-          size={"icon"}
-        >
-          {isLoading ? (
-            <Loader2 size={35} className="animate-spin p-1 text-white" />
-          ) : (
-            <ChevronRightIcon size={40} />
-          )}
-        </Button>
-      </div>
+      <SearchInput
+        guesses={guesses}
+        onSubmitGuess={handleSubmitGuess}
+        disabled={isLoading}
+        showButton={true}
+      />
 
       <div className="dropdown-scroll overflow-x-auto max-w-full px-4">
         <Table className="bg-zinc-950 min-w-max">

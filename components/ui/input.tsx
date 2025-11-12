@@ -1,133 +1,155 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { MovieResult } from "@/lib/types/resultSearch";
+import { Button } from "./button";
 import { ChevronRightIcon, Loader2 } from "lucide-react";
 
 export function SearchInput({
-  search,
-  setSearch,
-  results,
-  setResults,
-  selectedMovie,
-  setSelectedMovie,
   guesses,
-  handleSubmitGuess,
-  isLoading,
-  dropdownRef,
-  highlightedIndex,
-  setHighlightedIndex,
-  scrollToHighlighted,
+  onSubmitGuess,
+  disabled = false,
+  showButton = true,
 }: {
-  search: string;
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
-  results: any[];
-  setResults: React.Dispatch<React.SetStateAction<any[]>>;
-  selectedMovie: any | null;
-  setSelectedMovie: React.Dispatch<React.SetStateAction<any | null>>;
   guesses: any[];
-  handleSubmitGuess: () => void;
-  isLoading: boolean;
-  dropdownRef: React.RefObject<HTMLDivElement>;
-  highlightedIndex: number;
-  setHighlightedIndex: React.Dispatch<React.SetStateAction<number>>;
-  scrollToHighlighted: (index: number) => void;
+  onSubmitGuess: (movie: MovieResult) => void;
+  disabled?: boolean;
+  showButton?: boolean;
 }) {
+  const [search, setSearch] = React.useState("");
+  const [results, setResults] = React.useState<MovieResult[]>([]);
+  const [selectedMovie, setSelectedMovie] = React.useState<MovieResult | null>(null);
+  const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
+  // Busca de filmes com debounce
+  React.useEffect(() => {
+    if (!search) {
+      setResults([]);
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      const fetchData = async () => {
+        try {
+          const res = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/movies/summary/${search}`
+          );
+          setResults(Array.isArray(res.data) ? res.data : []);
+        } catch {
+          setResults([]);
+        }
+      };
+      fetchData();
+    }, 250);
+
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Filtra filmes já tentados
   const validResults = results.filter(
     (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
   );
 
+  // Atualiza selectedMovie quando highlightedIndex muda
   React.useEffect(() => {
     if (highlightedIndex >= 0 && highlightedIndex < validResults.length) {
       setSelectedMovie(validResults[highlightedIndex]);
     }
-  }, [highlightedIndex, validResults, setSelectedMovie]);
+  }, [highlightedIndex, validResults]);
+
+  // Scroll automático no dropdown
+  const scrollToHighlighted = (index: number) => {
+    const dropdown = dropdownRef.current;
+    if (!dropdown) return;
+
+    const item = dropdown.children[index] as HTMLElement;
+    if (item) {
+      item.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedMovie || disabled || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      await onSubmitGuess(selectedMovie);
+      setSearch("");
+      setSelectedMovie(null);
+      setHighlightedIndex(-1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="relative w-72 max-[500px]:w-56 max-[350px]:w-40">
-      <input
-        value={selectedMovie ? selectedMovie.title : search}
-        onChange={(e) => {
-          if (selectedMovie) {
-            setSelectedMovie(null);
-          }
-          setSearch(e.target.value);
-          setHighlightedIndex(-1); // Reseta o índice ao digitar
-        }}
-        onBlur={() => {
-          // Delay para permitir o clique no dropdown antes de fechar
-          setTimeout(() => {
-            setSearch("");
-            setHighlightedIndex(-1);
-          }, 200);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !isLoading) {
+    <div className="flex items-center justify-center gap-6">
+      <div className="relative w-72 max-[500px]:w-56 max-[350px]:w-40">
+        <input
+          value={selectedMovie ? selectedMovie.title : search}
+          onChange={(e) => {
             if (selectedMovie) {
-              // Envia o palpite se um filme já estiver selecionado
-              if (
-                !guesses.some(
-                  (guess) => guess.movie.id === Number(selectedMovie.id)
-                )
-              ) {
-                handleSubmitGuess();
-              }
-            } else if (results.length > 0) {
-
-              // Filtra o primeiro filme válido (não tentado)
-              const firstValidMovie = results.find(
-                (movie) =>
-                  !guesses.some((guess) => guess.movie.id === Number(movie.id))
-              );
-
-              if (firstValidMovie) {
-                setSelectedMovie(firstValidMovie);
-                setTimeout(() => handleSubmitGuess(), 0); // Envia o palpite automaticamente
-              }
+              setSelectedMovie(null);
             }
-          } else if (e.key === "ArrowDown") {
-            e.preventDefault();
-            setHighlightedIndex((prev) => {
-              const nextIndex = (prev + 1) % results.length;
-              scrollToHighlighted(nextIndex);
-              return nextIndex;
-            });
-            console.log(selectedMovie);
-          } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            setHighlightedIndex((prev) => {
-              const nextIndex = (prev - 1 + results.length) % results.length;
-              scrollToHighlighted(nextIndex);
-              return nextIndex;
-            });
-            console.log(selectedMovie);
-          }
-        }}
-        className={cn(
-          " placeholder:text-muted-foreground bg-black border-3 border-zinc-700 focus:border-zinc-500 focus:ring-0 outline-none rounded-full w-full py-2 transition-all  disabled:cursor-not-allowed disabled:opacity-50  ",
-          "text-lg px-4"
-        )}
-        placeholder="Inception"
-        type="text"
-      />
+            setSearch(e.target.value);
+            setHighlightedIndex(-1);
+          }}
+          onBlur={() => {
+            setTimeout(() => {
+              setSearch("");
+              setHighlightedIndex(-1);
+            }, 200);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !disabled) {
+              if (selectedMovie) {
+                if (!guesses.some((guess) => guess.movie.id === Number(selectedMovie.id))) {
+                  handleSubmit();
+                }
+              } else if (validResults.length > 0) {
+                setSelectedMovie(validResults[0]);
+                setTimeout(() => handleSubmit(), 0);
+              }
+            } else if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setHighlightedIndex((prev) => {
+                const nextIndex = (prev + 1) % validResults.length;
+                scrollToHighlighted(nextIndex);
+                return nextIndex;
+              });
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setHighlightedIndex((prev) => {
+                const nextIndex = (prev - 1 + validResults.length) % validResults.length;
+                scrollToHighlighted(nextIndex);
+                return nextIndex;
+              });
+            }
+          }}
+          className={cn(
+            "placeholder:text-muted-foreground bg-black border-3 border-zinc-700 focus:border-zinc-500 focus:ring-0 outline-none rounded-full w-full py-2 transition-all disabled:cursor-not-allowed disabled:opacity-50",
+            "text-lg px-4"
+          )}
+          placeholder="Inception"
+          type="text"
+          disabled={disabled || isLoading}
+        />
 
-      {search && results.length > 0 && (
-        <div
-          ref={dropdownRef}
-          className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto"
-        >
-          {results
-            .filter(
-              (movie) =>
-                !guesses.some((guess) => guess.movie.id === Number(movie.id))
-            )
-            .map((item, index) => (
+        {search && validResults.length > 0 && (
+          <div
+            ref={dropdownRef}
+            className="dropdown-scroll absolute left-0 right-0 mt-2 bg-zinc-950 gap-2 text-white rounded-xl shadow-lg z-10 border-3 border-zinc-700 max-h-60 overflow-y-auto"
+          >
+            {validResults.map((item, index) => (
               <div
                 key={item.id}
                 onClick={() => {
                   setSelectedMovie(item);
                   setHighlightedIndex(index);
                   setSearch("");
-                  setTimeout(() => handleSubmitGuess(), 0);
+                  setTimeout(() => handleSubmit(), 0);
                 }}
                 className={`text-white hover:bg-zinc-800 hover:rounded-md text-left p-2 cursor-pointer ${index === highlightedIndex ? "bg-zinc-700" : ""
                   }`}
@@ -135,7 +157,23 @@ export function SearchInput({
                 <p>{item.title}</p>
               </div>
             ))}
-        </div>
+          </div>
+        )}
+      </div>
+
+      {showButton && (
+        <Button
+          onClick={handleSubmit}
+          disabled={!selectedMovie || isLoading || disabled}
+          className="bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed"
+          size="icon"
+        >
+          {isLoading ? (
+            <Loader2 size={35} className="animate-spin p-1 text-white" />
+          ) : (
+            <ChevronRightIcon size={40} />
+          )}
+        </Button>
       )}
     </div>
   );
