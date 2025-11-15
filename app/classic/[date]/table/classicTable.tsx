@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/input";
 import {
   Table,
@@ -11,8 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { HistoryItem } from "@/lib/types/historyItem";
-import { MovieResult } from "@/lib/types/resultSearch";
 import { Guess } from "@/lib/types/movieGuess";
+import { MovieResult } from "@/lib/types/resultSearch";
 import {
   appendHistoryItem,
   appendTryClassic,
@@ -20,9 +19,10 @@ import {
   getTryClassic,
 } from "@/lib/useLocalstorage";
 import axios from "axios";
-import { ArrowDown, ArrowUp, ChevronRightIcon, Loader2 } from "lucide-react";
-import { useEffect, useRef, useState, RefObject } from "react";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { useEffect, useState } from "react";
 import WinScreenClassic from "../winScreen/winScreenClassic";
+import AbstractLineComponent from "./components/abstractLine";
 
 type ClassicTableProps = {
   date: string;
@@ -52,7 +52,9 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
   const handleSubmitGuess = async (movie: MovieResult) => {
     setIsLoading(true);
     try {
-      const res = await axios.get(
+      // Tipar a resposta como Guess (contém `movie` e `res`)
+      //usem o TYPEscript :)
+      const res = await axios.get<Guess>(
         `${process.env.NEXT_PUBLIC_API_URL}/classic-games/guess`,
         {
           params: {
@@ -62,23 +64,27 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         }
       );
 
-      if (res.data.res.correct === true) {
+      const guess: Guess = res.data;
+
+      if (guess.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3");
         audio.play();
 
+        // Garantir que o id do HistoryItem seja number (Movie.id em `Guess` é number)
         const newHistoryItem: HistoryItem = {
           date: date,
-          id: res.data.movie.id,
+          id: guess.movie.id,
           totalAttempts: guesses.length + 1,
         };
+
         appendHistoryItem(newHistoryItem);
         clearTryClassic(date);
         setIsWin(true);
       } else {
-        appendTryClassic(res.data, date);
+        appendTryClassic(guess, date);
       }
 
-      setGuesses((prevGuesses) => [res.data, ...prevGuesses]);
+      setGuesses((prevGuesses) => [guess, ...prevGuesses]);
     } catch (error) {
       console.error("Failed to fetch movie details:", error);
     } finally {
@@ -143,6 +149,12 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
+            {/* abstract line */}
+            <AbstractLineComponent
+              guesses={guesses}
+              getCellColor={getCellColor}
+            />
+
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
                 {/* Title */}
@@ -155,7 +167,9 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
                       backgroundRepeat: "no-repeat",
                     }}
                   >
-                    <p className="bg-black/25 p-1 w-full break-words whitespace-normal">{guess.movie.title}</p>
+                    <p className="bg-black/25 p-1 w-full break-words whitespace-normal">
+                      {guess.movie.title}
+                    </p>
                   </div>
                 </TableCell>
 

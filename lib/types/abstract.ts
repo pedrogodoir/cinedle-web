@@ -1,0 +1,18 @@
+type NumericField = {
+  max: number;
+  min: number;
+  status: string;
+};
+
+type ItemArray = {
+  values: string[];
+  status: string;
+};
+type AbstractLine = {
+  releaseDate: NumericField;
+  budget: NumericField;
+  genres: ItemArray;
+  companies: ItemArray;
+  directors: ItemArray;
+  actors: string;
+};
