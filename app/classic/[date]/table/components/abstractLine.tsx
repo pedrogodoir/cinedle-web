@@ -45,8 +45,6 @@ function aggregateNumericField(
   } else if (currState === "more") {
     // define ou aumenta o limite inferior
     min = min === null ? n : Math.max(min, n);
-  } else {
-    return { min, max, status: "unknown" };
   }
 
   if (min !== null && max !== null && min > max) {
@@ -63,35 +61,89 @@ const handleAbstract = (guesses: Guess[]): AbstractLine => {
   let releaseDate: NumericField = {
     min: null,
     max: null,
-    status: "incorrect",
+    status: "parcial",
   };
   let budget: NumericField = {
     min: null,
     max: null,
-    status: "incorrect",
+    status: "parcial",
   };
 
+  // Flags para pular processamento de atributos já resolvidos como `correct`
+  let genresResolved = false;
+  let companiesResolved = false;
+  let directorsResolved = false;
+  let actorsResolved = false;
+  let releaseDateResolved = false;
+  let budgetResolved = false;
+
   guesses.forEach((guess) => {
-    const genresNames: string[] = guess.movie.genres.map((g) => g.name);
-    allGenres.push({ values: genresNames, status: guess.res.genres });
-    const companiesNames: string[] = guess.movie.companies.map((c) => c.name);
-    allCompanies.push({ values: companiesNames, status: guess.res.companies });
-    const directorsNames: string[] = guess.movie.directors.map((d) => d.name);
-    allDirectors.push({ values: directorsNames, status: guess.res.directors });
-    const actorsNames: string[] = guess.movie.actors.map((a) => a.name);
-    allActors.push({ values: actorsNames, status: guess.res.actors });
-    // release date
-    releaseDate = aggregateNumericField(
-      releaseDate,
-      extractYear(guess.movie.releaseDate),
-      guess.res.releaseDate
-    );
-    // budget
-    budget = aggregateNumericField(
-      budget,
-      Number(guess.movie.budget),
-      guess.res.budget
-    );
+    // Arrays (genres, companies, directors, actors)
+    if (!genresResolved) {
+      const genresNames: string[] = guess.movie.genres.map((g) => g.name);
+      if (guess.res.genres === "correct") {
+        // se correto, armazenamos somente esse e marcamos como resolvido
+        allGenres.push({ values: genresNames, status: "correct" });
+        genresResolved = true;
+      } else {
+        allGenres.push({ values: genresNames, status: guess.res.genres });
+      }
+    }
+
+    if (!companiesResolved) {
+      const companiesNames: string[] = guess.movie.companies.map((c) => c.name);
+      if (guess.res.companies === "correct") {
+        allCompanies.push({ values: companiesNames, status: "correct" });
+        companiesResolved = true;
+      } else {
+        allCompanies.push({
+          values: companiesNames,
+          status: guess.res.companies,
+        });
+      }
+    }
+
+    if (!directorsResolved) {
+      const directorsNames: string[] = guess.movie.directors.map((d) => d.name);
+      if (guess.res.directors === "correct") {
+        allDirectors.push({ values: directorsNames, status: "correct" });
+        directorsResolved = true;
+      } else {
+        allDirectors.push({
+          values: directorsNames,
+          status: guess.res.directors,
+        });
+      }
+    }
+
+    if (!actorsResolved) {
+      const actorsNames: string[] = guess.movie.actors.map((a) => a.name);
+      if (guess.res.actors === "correct") {
+        allActors.push({ values: actorsNames, status: "correct" });
+        actorsResolved = true;
+      } else {
+        allActors.push({ values: actorsNames, status: guess.res.actors });
+      }
+    }
+
+    // Numeric fields: somente processa enquanto não estiverem resolvidos
+    if (!releaseDateResolved) {
+      releaseDate = aggregateNumericField(
+        releaseDate,
+        extractYear(guess.movie.releaseDate),
+        guess.res.releaseDate
+      );
+      if (releaseDate.status === "correct") releaseDateResolved = true;
+    }
+
+    if (!budgetResolved) {
+      budget = aggregateNumericField(
+        budget,
+        Number(guess.movie.budget),
+        guess.res.budget
+      );
+      if (budget.status === "correct") budgetResolved = true;
+    }
   });
 
   const abstract: AbstractLine = {
@@ -100,8 +152,9 @@ const handleAbstract = (guesses: Guess[]): AbstractLine => {
     genres: aggregateArrays(allGenres),
     companies: aggregateArrays(allCompanies),
     directors: aggregateArrays(allDirectors),
-    actors: "incorrect",
+    actors: aggregateArrays(allActors),
   };
+  console.log("abstract", abstract);
   return abstract;
 };
 
@@ -204,10 +257,16 @@ const AbstractLineComponent = ({
       <TableCell className="flex items-center justify-center">
         <div
           className={`h-full w-full align-center flex items-center justify-center ${getCellColor(
-            abstract.actors
+            abstract.actors.status
           )} rounded-md`}
         >
-          {/* <p className="bg-black/25 w-full p-1">{abstract.actors || ""}</p> */}
+          {abstract.actors.values.length > 0 ? (
+            <p className="bg-black/25 w-full p-1">
+              {abstract.actors.values[0] || ""}
+            </p>
+          ) : (
+            ""
+          )}
         </div>
       </TableCell>
 

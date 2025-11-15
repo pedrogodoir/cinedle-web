@@ -14,5 +14,5 @@ type AbstractLine = {
   genres: ItemArray;
   companies: ItemArray;
   directors: ItemArray;
-  actors: string;
+  actors: ItemArray;
 };
