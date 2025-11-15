@@ -2,9 +2,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Guess } from "@/lib/types/movieGuess";
 import { extractYear, leftJoinDiffUnique } from "@/lib/utils";
 
-type Status = "correct" | "parcial" | "incorrect";
-
-export function aggregateArrays(arrays: ItemArray[]) {
+function aggregateArrays(arrays: ItemArray[]) {
   const parcialList: string[] = [];
   const incorrectList: string[] = [];
 
@@ -29,19 +27,47 @@ export function aggregateArrays(arrays: ItemArray[]) {
   }
 }
 
+function aggregateNumericField(
+  field: NumericField,
+  n: number,
+  currState: string
+): NumericField {
+  let min = field.min ?? null;
+  let max = field.max ?? null;
+
+  if (currState === "correct") {
+    return { min: n, max: n, status: "correct" };
+  }
+
+  if (currState === "less") {
+    // define ou reduz o limite superior
+    max = max === null ? n : Math.min(max, n);
+  } else if (currState === "more") {
+    // define ou aumenta o limite inferior
+    min = min === null ? n : Math.max(min, n);
+  } else {
+    return { min, max, status: "unknown" };
+  }
+
+  if (min !== null && max !== null && min > max) {
+    return { min, max, status: "contradiction" };
+  }
+
+  return { min, max, status: "incorrect" };
+}
 const handleAbstract = (guesses: Guess[]): AbstractLine => {
   const allGenres: ItemArray[] = [];
   const allCompanies: ItemArray[] = [];
   const allDirectors: ItemArray[] = [];
   const allActors: ItemArray[] = [];
   let releaseDate: NumericField = {
-    max: extractYear(guesses[0].movie.releaseDate),
-    min: extractYear(guesses[0].movie.releaseDate),
+    min: null,
+    max: null,
     status: "incorrect",
   };
   let budget: NumericField = {
-    max: Number(guesses[0].movie.budget),
-    min: Number(guesses[0].movie.budget),
+    min: null,
+    max: null,
     status: "incorrect",
   };
 
@@ -54,6 +80,18 @@ const handleAbstract = (guesses: Guess[]): AbstractLine => {
     allDirectors.push({ values: directorsNames, status: guess.res.directors });
     const actorsNames: string[] = guess.movie.actors.map((a) => a.name);
     allActors.push({ values: actorsNames, status: guess.res.actors });
+    // release date
+    releaseDate = aggregateNumericField(
+      releaseDate,
+      extractYear(guess.movie.releaseDate),
+      guess.res.releaseDate
+    );
+    // budget
+    budget = aggregateNumericField(
+      budget,
+      Number(guess.movie.budget),
+      guess.res.budget
+    );
   });
 
   const abstract: AbstractLine = {
@@ -67,6 +105,64 @@ const handleAbstract = (guesses: Guess[]): AbstractLine => {
   return abstract;
 };
 
+const formatYear = (field: NumericField): string => {
+  const { min, max, status } = field;
+  if (status === "correct") {
+    return String(max);
+  }
+  if (min === null && max === null) {
+    return "?";
+  }
+  if (min === null && max !== null) {
+    return String(max);
+  }
+  if (min !== null && max === null) {
+    return `${min}+`;
+  }
+
+  if (min !== null && max !== null) {
+    if (min < max) {
+      return `${min} - ${max}`;
+    }
+    return String(min);
+  }
+
+  return "?";
+};
+
+const formatBudget = (field: NumericField): string => {
+  const { min, max, status } = field;
+  const fmt = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+  const f = (n: number) => fmt.format(n / 1_000_000) + "M";
+
+  if (status === "correct") {
+    return f(max!);
+  }
+  if (min === null && max === null) {
+    return "?";
+  }
+
+  if (min === null && max !== null) {
+    return f(max);
+  }
+
+  if (min !== null && max === null) {
+    return `> ${f(min)}`;
+  }
+
+  if (min !== null && max !== null) {
+    if (min < max) {
+      return `${f(min)} - ${f(max)}`;
+    }
+    return f(min);
+  }
+  return "?";
+};
 const AbstractLineComponent = ({
   guesses,
   getCellColor,
@@ -75,6 +171,7 @@ const AbstractLineComponent = ({
   getCellColor: (value: string) => string;
 }) => {
   const abstract = handleAbstract(guesses);
+
   return (
     <TableRow>
       {/* Title */}
@@ -145,60 +242,29 @@ const AbstractLineComponent = ({
       </TableCell>
 
       {/* Budget */}
-      {/* <TableCell className="flex items-center justify-center">
+      <TableCell className="flex items-center justify-center">
         <div
           className={` relative h-full w-full align-center ${getCellColor(
-            abstract.budget
+            abstract.budget.status
           )} h-full flex items-center justify-center rounded-md`}
         >
           <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(Number(abstract.budget.value))}
+            {formatBudget(abstract.budget)}
           </p>
-          {abstract.budget.status === "less" && (
-            <ArrowDown
-              size="100%"
-              strokeWidth={3}
-              className="absolute z-0 text-zinc-800"
-            />
-          )}
-          {abstract.budget.status === "more" && (
-            <ArrowUp
-              size="100%"
-              strokeWidth={3}
-              className="absolute z-0 text-zinc-800"
-            />
-          )}
         </div>
-      </TableCell> */}
+      </TableCell>
       {/* Release Date */}
-      {/* <TableCell className="flex items-center justify-center">
+      <TableCell className="flex items-center justify-center">
         <div
           className={` relative h-full w-full max-w-full max-h-full align-center ${getCellColor(
-            abstract.releaseDate
+            abstract.releaseDate.status
           )} h-full flex items-center justify-center rounded-md`}
         >
           <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
-            {new Date(abstract.releaseDate.value).getFullYear()}
+            {formatYear(abstract.releaseDate)}
           </p>
-          {abstract.releaseDate.color === "less" && (
-            <ArrowDown
-              size="100%"
-              strokeWidth={3}
-              className="absolute z-0 text-zinc-800"
-            />
-          )}
-          {abstract.releaseDate.status === "more" && (
-            <ArrowUp
-              size="100%"
-              strokeWidth={3}
-              className="absolute z-0 text-zinc-800"
-            />
-          )}
         </div>
-      </TableCell> */}
+      </TableCell>
     </TableRow>
   );
 };

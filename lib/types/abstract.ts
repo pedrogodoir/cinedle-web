@@ -1,6 +1,6 @@
 type NumericField = {
-  max: number;
-  min: number;
+  max: number | null;
+  min: number | null;
   status: string;
 };
 

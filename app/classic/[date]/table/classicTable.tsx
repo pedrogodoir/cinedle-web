@@ -150,11 +150,12 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           </TableHeader>
           <TableBody>
             {/* abstract line */}
-            <AbstractLineComponent
-              guesses={guesses}
-              getCellColor={getCellColor}
-            />
-
+            {guesses.length > 0 && (
+              <AbstractLineComponent
+                guesses={guesses}
+                getCellColor={getCellColor}
+              />
+            )}
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
                 {/* Title */}
