@@ -4,6 +4,7 @@ import { SearchInput } from "@/components/ui/input";
 import { HistoryItem } from "@/lib/types/historyItem";
 import { MovieResult } from "@/lib/types/resultSearch";
 import {
+  appendLoseHistoryPoster,
   appendHistoryPoster,
   appendTryPoster,
   clearTryPoster,
@@ -154,10 +155,11 @@ export default function Poster({ date, colorBlind }: PosterProps) {
             totalAttempts: iteration,
             mode: "poster",
           };
-          appendHistoryPoster(newHistoryItem);
+          appendLoseHistoryPoster(newHistoryItem);
           clearTryPoster(date);
           setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");
+     
         }
       }
     } catch (error) {

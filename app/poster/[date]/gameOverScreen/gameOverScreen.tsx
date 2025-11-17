@@ -20,7 +20,6 @@ function GameOverScreenPoster({
           `${process.env.NEXT_PUBLIC_API_URL}/movies/${movieId}`
         );
         setMovie(res.data);
-        console.log("chegou aqui no gameOVER");
       } catch {
         console.log("erro fetching data");
       }

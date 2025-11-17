@@ -44,6 +44,31 @@ export function appendHistoryPoster(item: HistoryItem) {
 }
 
 /**
+ * Adiciona um item no histórico de derrotas do Poster
+ */
+export function appendLoseHistoryPoster(item: HistoryItem) {
+  if (typeof window === "undefined") return;
+
+  const stored = localStorage.getItem("LoseHistoryPoster");
+  const history: HistoryItem[] = stored ? JSON.parse(stored) : [];
+
+  history.push(item);
+  localStorage.setItem("LoseHistoryPoster", JSON.stringify(history));
+}
+
+/**
+ * Lê o histórico de derrota do Poster
+ */
+export function getLoseHistoryPoster(): HistoryItem[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const stored = localStorage.getItem("LoseHistoryPoster");
+  return stored ? JSON.parse(stored) : [];
+}
+
+/**
  * Lê todo o histórico do Poster
  */
 export function getHistoryPoster(): HistoryItem[] {
