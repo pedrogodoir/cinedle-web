@@ -12,27 +12,6 @@ function GameOverScreenPoster({
 }) {
   const [movie, setMovie] = React.useState<Movie | null>(null);
 
-  useEffect(() => {
-    const fireSideCannons = () => {
-      // Canhão da esquerda
-      confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 1 },
-      });
-
-      // Canhão da direita
-      confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 1 },
-      });
-    };
-
-    fireSideCannons();
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
