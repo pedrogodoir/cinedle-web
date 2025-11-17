@@ -46,11 +46,15 @@ export function SearchInput({
 
     return () => clearTimeout(handler);
   }, [search]);
-
   // Filtra filmes já tentados
-  const validResults = results.filter(
-    (movie) => !guesses.some((guess) => guess.movie.id === Number(movie.id))
-  );
+  const validResults = results.filter((movie) => {
+    // Se guesses é array de números (modo Poster)
+    if (guesses.length > 0 && typeof guesses[0] === "number") {
+      return !guesses.includes(Number(movie.id));
+    }
+    // Se guesses é array de Guess (modo Classic)
+    return !guesses.some((guess) => guess.movie?.id === Number(movie.id));
+  });
 
   // Atualiza selectedMovie quando highlightedIndex muda
   React.useEffect(() => {

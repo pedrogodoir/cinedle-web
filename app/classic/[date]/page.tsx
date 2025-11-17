@@ -3,7 +3,7 @@ import { Header } from "@/components/ui/header";
 import { History } from "@/components/ui/history";
 import { Modal } from "@/components/ui/Modal";
 import { HistoryItem } from "@/lib/types/historyItem";
-import { getColorBlind, getHistory } from "@/lib/useLocalstorage";
+import { getColorBlind, getHistoryClassic } from "@/lib/useLocalstorage";
 import axios from "axios";
 import { Menu } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -53,18 +53,16 @@ export default function Page() {
 
     return () => clearTimeout(handler);
   }, [search]);
-
   const date = useParams<{ date: string }>().date;
-  const history = getHistory();
+  const history = getHistoryClassic();
 
   const h = history.find((item) => item.date.split("T")[0] === date);
   return (
     <div className="flex flex-col items-center justify-items-center min-h-screen min-w-screen bg-black bg-[url(/bg-classic.webp)] bg-center bg-cover bg-no-repeat">
       <header className="w-screen md:w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
-        <div></div>
-        <Header />
+        <div></div>        <Header />
         <div className="flex items-center justify-center gap-4 max-[500px]:gap-2 ">
-          <History date={date} />
+          <History date={date} currentMode="classic" />
           <Menu
             className="bg-white text-black rounded-full p-2 hover:bg-red-500 transition-colors cursor-pointer w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"
             onClick={() => setIsModalOpen(true)}

@@ -3,29 +3,27 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getHistory } from "@/lib/useLocalstorage";
+import { getHistoryClassic, getHistoryPoster } from "@/lib/useLocalstorage";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { Calendar } from "./calendarHistory";
+import { Calendar } from "@/components/ui/calendarHistory";
 
 const firstDay = new Date("2025-10-10");
 
 interface HistoryProps {
   date: string;
+  currentMode?: "classic" | "poster";
 }
 
-export function History({ date }: HistoryProps) {
-  const history = getHistory();
+export function History({ date, currentMode = "classic" }: HistoryProps) {
+  // Carrega apenas o histórico do modo atual
+  const history = currentMode === "classic" ? getHistoryClassic() : getHistoryPoster();
 
-  // Converte a string de data para um objeto Date no fuso horário local
-  const parseLocalDate = (dateString: string): Date => {
-    const [year, month, day] = dateString.split("-").map(Number);
-    return new Date(year, month - 1, day); // month - 1 porque Date usa 0-11 para meses
-  };
+  // Converte a string de data para objeto Date
+  const selectedDate = new Date(date + "T00:00:00");
 
   return (
     <div>
@@ -37,18 +35,19 @@ export function History({ date }: HistoryProps) {
           <Button variant="default">
             <CalendarIcon className="hover:bg-gray-200 transition-colors w-6 h-6 max-[500px]:w-4 max-[500px]:h-4 max-[350px]:h-2 max-[350px]:w-2" />
           </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-zinc-950 rounded-md p-4 border-3 border-zinc-700">
+        </DialogTrigger>        <DialogContent className="sm:max-w-[425px] bg-zinc-950 rounded-md p-4 border-3 border-zinc-700">
           <DialogHeader>
-            <DialogTitle>History</DialogTitle>
-            <DialogDescription>View past games here.</DialogDescription>
+            <DialogTitle>
+              History - {currentMode === "classic" ? "Classic Mode" : "Poster Mode"}
+            </DialogTitle>
           </DialogHeader>
+
           <div className="body">
             <Calendar
               mode="single"
-              selected={parseLocalDate(date)} // Usa a função para converter corretamente
+              selected={selectedDate}
               data={history}
-              //o min-h-450 é para evitar que o calendário mude de tamanho quando muda de mês
+              currentMode={currentMode}
               className="w-full min-h-[450px]"
               disabled={(date) => date > new Date() || date < firstDay}
             />
