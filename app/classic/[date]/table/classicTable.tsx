@@ -135,7 +135,6 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         disabled={isLoading}
         showButton={true}
       />
-
       <div className="dropdown-scroll overflow-x-auto max-w-full px-4">
         <Table className="bg-zinc-950 min-w-max">
           <TableHeader>
