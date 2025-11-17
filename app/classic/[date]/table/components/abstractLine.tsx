@@ -179,7 +179,7 @@ const formatYear = (field: NumericField): string => {
     return String(max);
   }
   if (min !== null && max === null) {
-    return `${min}+`;
+    return `${min}`;
   }
 
   if (min !== null && max !== null) {
@@ -214,7 +214,7 @@ const formatBudget = (field: NumericField): string => {
   }
 
   if (min !== null && max === null) {
-    return `> ${f(min)}`;
+    return `${f(min)}`;
   }
 
   if (min !== null && max !== null) {
@@ -345,6 +345,20 @@ const AbstractLineComponent = ({
           <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
             {formatYear(abstract.releaseDate)}
           </p>
+          {abstract.releaseDate.status === "less" && (
+            <ArrowDown
+              size="100%"
+              strokeWidth={3}
+              className="absolute z-0 text-zinc-800"
+            />
+          )}
+          {abstract.releaseDate.status === "more" && (
+            <ArrowUp
+              size="100%"
+              strokeWidth={3}
+              className="absolute z-0 text-zinc-800"
+            />
+          )}
         </div>
       </TableCell>
     </TableRow>
