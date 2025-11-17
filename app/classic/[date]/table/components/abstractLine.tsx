@@ -1,6 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Guess } from "@/lib/types/movieGuess";
 import { extractYear, leftJoinDiffUnique } from "@/lib/utils";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 function aggregateArrays(arrays: ItemArray[]) {
   const parcialList: string[] = [];
@@ -40,18 +41,26 @@ function aggregateNumericField(
   }
 
   if (currState === "less") {
-    // define ou reduz o limite superior
-    max = max === null ? n : Math.min(max, n);
+    if (max === null) max = n;
+    else max = Math.min(max, n);
   } else if (currState === "more") {
-    // define ou aumenta o limite inferior
-    min = min === null ? n : Math.max(min, n);
+    if (min === null) min = n;
+    else min = Math.max(min, n);
   }
 
-  if (min !== null && max !== null && min > max) {
-    return { min, max, status: "contradiction" };
+  let status: "parcial" | "more" | "less" | "correct" | "incorrect";
+
+  if (min !== null && max !== null) {
+    status = "parcial";
+  } else if (min !== null) {
+    status = "more";
+  } else if (max !== null) {
+    status = "less";
+  } else {
+    status = "incorrect";
   }
 
-  return { min, max, status: "incorrect" };
+  return { min, max, status };
 }
 const handleAbstract = (guesses: Guess[]): AbstractLine => {
   const allGenres: ItemArray[] = [];
@@ -310,6 +319,20 @@ const AbstractLineComponent = ({
           <p className="bg-black/25 w-full p-1 flex items-center justify-center z-10">
             {formatBudget(abstract.budget)}
           </p>
+          {abstract.budget.status === "less" && (
+            <ArrowDown
+              size="100%"
+              strokeWidth={3}
+              className="absolute z-0 text-zinc-800"
+            />
+          )}
+          {abstract.budget.status === "more" && (
+            <ArrowUp
+              size="100%"
+              strokeWidth={3}
+              className="absolute z-0 text-zinc-800"
+            />
+          )}
         </div>
       </TableCell>
       {/* Release Date */}

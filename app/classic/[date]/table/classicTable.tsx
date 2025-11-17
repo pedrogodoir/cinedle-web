@@ -23,6 +23,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import WinScreenClassic from "../winScreen/winScreenClassic";
 import AbstractLineComponent from "./components/abstractLine";
+import { Separator } from "@/components/ui/separator";
 
 type ClassicTableProps = {
   date: string;
@@ -64,7 +65,8 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         }
       );
 
-      const guess: Guess = res.data; if (guess.res.correct === true) {
+      const guess: Guess = res.data;
+      if (guess.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3");
         audio.play();
 
@@ -133,7 +135,6 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         disabled={isLoading}
         showButton={true}
       />
-
       <div className="dropdown-scroll overflow-x-auto max-w-full px-4">
         <Table className="bg-zinc-950 min-w-max">
           <TableHeader>
@@ -150,10 +151,19 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           <TableBody>
             {/* abstract line */}
             {guesses.length > 0 && (
-              <AbstractLineComponent
-                guesses={guesses}
-                getCellColor={getCellColor}
-              />
+              <>
+                <AbstractLineComponent
+                  guesses={guesses}
+                  getCellColor={getCellColor}
+                />
+                <TableRow>
+                  <TableCell colSpan={7}>
+                    <div className="flex items-center justify-center mx-4">
+                      <Separator className="my-2" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </>
             )}
             {guesses.map((guess) => (
               <TableRow key={guess.movie.id}>
