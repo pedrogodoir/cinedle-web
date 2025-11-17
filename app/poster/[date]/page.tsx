@@ -9,7 +9,7 @@ import { Menu } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClassicTable from "./poster/poster";
-import WinScreenClassic from "./winScreen/winScreenPoster";
+import WinScreenPoster from "./winScreen/winScreenPoster";
 import Poster from "./poster/poster";
 
 type MovieResult = {
@@ -81,7 +81,7 @@ export default function Page() {
         />
 
         {dateExistsInHistory({ date, history }) ? (
-          <WinScreenClassic movieId={h?.id} totalAttempts={h?.totalAttempts} />
+          <WinScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts} />
         ) : (
           <Poster date={date} colorBlind={colorBlind} />
         )}
