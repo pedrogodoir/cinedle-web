@@ -21,11 +21,12 @@ import { PosterTry } from "@/lib/types/posterTry";
 type PosterProps = {
   date: string;
   colorBlind?: boolean;
+  grayFilter?: boolean
 };
 
 const MAX_ATTEMPTS = 6;
 
-export default function Poster({ date, colorBlind }: PosterProps) {
+export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWin, setIsWin] = useState(false);

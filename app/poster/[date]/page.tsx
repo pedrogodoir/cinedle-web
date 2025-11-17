@@ -3,7 +3,7 @@ import { Header } from "@/components/ui/header";
 import { History } from "@/components/ui/history";
 import { Modal } from "@/components/ui/Modal";
 import { HistoryItem } from "@/lib/types/historyItem";
-import { getColorBlind, getHistoryPoster, getLoseHistoryPoster} from "@/lib/useLocalstorage";
+import { getColorBlind, getHistoryPoster, getLoseHistoryPoster, getGrayFilter} from "@/lib/useLocalstorage";
 import axios from "axios";
 import { Menu } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -33,6 +33,7 @@ export default function Page() {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
   const [colorBlind, setColorBlind] = useState(getColorBlind());
+  const [grayFilter, setGrayFilter] = useState(getGrayFilter());
 
   useEffect(() => {
     if (!search) {
@@ -80,6 +81,8 @@ export default function Page() {
             setIsModalOpen(false);
           }}
           colorBlind={colorBlind}
+          grayFilter={grayFilter}
+          setGrayFilter={setGrayFilter}
           setColorBlind={setColorBlind}
         />
 
@@ -90,7 +93,7 @@ export default function Page() {
           <GameOverScreenPoster movieId={h2?.id} totalAttempts={h2?.totalAttempts}
           />
         ) : (
-          <Poster date={date} colorBlind={colorBlind} />
+          <Poster date={date} colorBlind={colorBlind} grayFilter={grayFilter}/>
         )}
       </div>
     </div>

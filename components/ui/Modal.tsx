@@ -5,12 +5,16 @@ export const Modal = ({
 	onClose,
 	colorBlind,
 	setColorBlind,
+	grayFilter,
+	setGrayFilter,
 	children,
 }: {  
 	isOpen: boolean;
 	onClose: () => void;
 	colorBlind: boolean;
+	grayFilter: boolean;
 	setColorBlind: (value: boolean) => void;
+	setGrayFilter: (value: boolean) => void;
 	children?: React.ReactNode;
 	}) => {
 	if (!isOpen) return null;
@@ -58,8 +62,16 @@ export const Modal = ({
 					<div className="flex items-center gap-3">
 						<div className="relative inline-block w-11 h-5">
 							<input
-								id="switch-darkmode"
+								onChange={(e) => {
+									setGrayFilter(e.target.checked);
+									localStorage.setItem(
+										"grayFilter",
+										e.target.checked.toString()
+									);
+								}}
+								id="switch-gray-filter"
 								type="checkbox"
+								checked={grayFilter}
 								className="peer appearance-none w-11 h-5 bg-zinc-200 rounded-full checked:bg-red-500 cursor-pointer transition-colors duration-300"
 							/>
 							<label
@@ -68,7 +80,7 @@ export const Modal = ({
 							</label>		
 						</div>
 						<label htmlFor="switch-darkmode" className="text-zinc-200 text-sm cursor-pointer">
-							<p className="font-medium">Dark mode</p>
+							<p className="font-medium">Gray Filter</p>
 						</label>
 					</div>
 				</div>
