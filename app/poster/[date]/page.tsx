@@ -3,13 +3,14 @@ import { Header } from "@/components/ui/header";
 import { History } from "@/components/ui/history";
 import { Modal } from "@/components/ui/Modal";
 import { HistoryItem } from "@/lib/types/historyItem";
-import { getColorBlind, getHistoryPoster } from "@/lib/useLocalstorage";
+import { getColorBlind, getHistoryPoster, getLoseHistoryPoster} from "@/lib/useLocalstorage";
 import axios from "axios";
 import { Menu } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClassicTable from "./poster/poster";
 import WinScreenPoster from "./winScreen/winScreenPoster";
+import GameOverScreenPoster from "./gameOverScreen/gameOverScreen";
 import Poster from "./poster/poster";
 
 type MovieResult = {
@@ -55,9 +56,11 @@ export default function Page() {
     return () => clearTimeout(handler);
   }, [search]);
   const date = useParams<{ date: string }>().date;
-  const history = getHistoryPoster();
-
-  const h = history.find((item) => item.date.split("T")[0] === date);
+  const winHistory = getHistoryPoster();
+  const loseHistory = getLoseHistoryPoster();
+  const h = winHistory.find((item) => item.date.split("T")[0] === date);
+  const h2 = loseHistory.find((item) => item.date.split("T")[0] === date);
+  
   return (
     <div className="flex flex-col items-center justify-items-center bg-black ">
       <div className="bg-[url(/bg-classic.webp)] bg-center bg-cover bg-no-repeat w-full min-h-screen bg-black flex flex-col items-center justify-start px-4">
@@ -80,8 +83,12 @@ export default function Page() {
           setColorBlind={setColorBlind}
         />
 
-        {dateExistsInHistory({ date, history }) ? (
+        {dateExistsInHistory({ date, history: winHistory }) ? (
           <WinScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts} />
+
+        ) : dateExistsInHistory({ date, history: loseHistory }) ? (
+          <GameOverScreenPoster movieId={h2?.id} totalAttempts={h2?.totalAttempts}
+          />
         ) : (
           <Poster date={date} colorBlind={colorBlind} />
         )}
