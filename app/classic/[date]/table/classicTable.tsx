@@ -157,9 +157,13 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
                   guesses={guesses}
                   getCellColor={getCellColor}
                 />
-                <div className="flex items-center justify-center mx-4">
-                  <Separator className="my-4" />
-                </div>
+                <TableRow>
+                  <TableCell colSpan={7}>
+                    <div className="flex items-center justify-center mx-4">
+                      <Separator className="my-2" />
+                    </div>
+                  </TableCell>
+                </TableRow>
               </>
             )}
             {guesses.map((guess) => (

@@ -65,30 +65,36 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   )
 }
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+function TableHead({ className, style, colSpan, ...props }: React.ComponentProps<"th">) {
+  // Se a linha é renderizada como grid (ver TableRow), colspan não funciona
+  // como em tabelas normais. Aqui adicionamos um style de gridColumn quando
+  // colSpan é informado para que o cabeçalho possa ocupar múltiplas colunas.
+  const gridStyle = colSpan ? { gridColumn: `span ${colSpan} / span ${colSpan}` } : undefined;
+
   return (
     <th
       data-slot="table-head"
-      className={cn(
-        " bg-zinc-950 text-white py-3",
-        className
-      )}
+      className={cn(" bg-zinc-950 text-white py-3", className)}
+      style={{ ...(style as React.CSSProperties), ...(gridStyle as React.CSSProperties) }}
+      {...(colSpan !== undefined ? { colSpan } : {})}
       {...props}
     />
-  )
+  );
 }
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+function TableCell({ className, style, colSpan, ...props }: React.ComponentProps<"td">) {
+  // Suporte a colSpan quando TableRow usa grid: aplicamos gridColumn inline.
+  const gridStyle = colSpan ? { gridColumn: `span ${colSpan} / span ${colSpan}` } : undefined;
+
   return (
     <td
       data-slot="table-cell"
-      className={cn(
-        "p-2 text-white text-sm",
-        className
-      )}
+      className={cn("p-2 text-white text-sm", className)}
+      style={{ ...(style as React.CSSProperties), ...(gridStyle as React.CSSProperties) }}
+      {...(colSpan !== undefined ? { colSpan } : {})}
       {...props}
     />
-  )
+  );
 }
 
 function TableCaption({

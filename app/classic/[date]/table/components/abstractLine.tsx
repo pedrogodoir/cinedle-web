@@ -35,26 +35,29 @@ function aggregateNumericField(
 ): NumericField {
   let min = field.min ?? null;
   let max = field.max ?? null;
-  let status = currState;
 
   if (currState === "correct") {
     return { min: n, max: n, status: "correct" };
   }
 
   if (currState === "less") {
-    if (max === null) {
-      max = n;
-    } else {
-      max = Math.min(max, n);
-      status = "parcial";
-    }
+    if (max === null) max = n;
+    else max = Math.min(max, n);
   } else if (currState === "more") {
-    if (min === null) {
-      min = n;
-    } else {
-      min = Math.max(min, n);
-      status = "parcial";
-    }
+    if (min === null) min = n;
+    else min = Math.max(min, n);
+  }
+
+  let status: "parcial" | "more" | "less" | "correct" | "incorrect";
+
+  if (min !== null && max !== null) {
+    status = "parcial";
+  } else if (min !== null) {
+    status = "more";
+  } else if (max !== null) {
+    status = "less";
+  } else {
+    status = "incorrect";
   }
 
   return { min, max, status };
