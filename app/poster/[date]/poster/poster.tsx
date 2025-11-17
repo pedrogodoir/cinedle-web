@@ -12,7 +12,9 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import WinScreenPoster from "../winScreen/winScreenPoster";
+import GameOverScreenPoster from "../gameOverScreen/gameOverScreen";
 import { PosterGet } from "@/lib/types/posterGet";
+import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
 
 type PosterProps = {
@@ -133,6 +135,24 @@ export default function Poster({ date, colorBlind }: PosterProps) {
         // Se atingiu 6 tentativas e ainda não acertou, mostra mensagem
         if (iteration >= 6) {
           // TODO: Implementar tela de derrota
+          const res = await axios.get<PosterGame>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games`,
+            {
+              params: {
+                date: date,
+              },
+            }
+          );
+          console.log(res.data.res)
+          const newHistoryItem: HistoryItem = {
+            date: date,
+            id: res.data.res.movie_id,
+            totalAttempts: iteration,
+            mode: "poster",
+          };
+          appendHistoryPoster(newHistoryItem);
+          clearTryPoster(date);
+          setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");
         }
       }
@@ -147,6 +167,12 @@ export default function Poster({ date, colorBlind }: PosterProps) {
       movieId={correctMovieId || 0}
       totalAttempts={posterTry?.iterations || iteration - 1}
     />
+  ) : iteration > 6 ?(
+    <GameOverScreenPoster
+      movieId={correctMovieId || 0}
+      totalAttempts={posterTry?.iterations || iteration - 1}
+    />
+
   ) : (
     <div className="flex flex-col flex-1 gap-5 text-center pt-10 max-w-full px-4">
       {/* Container da imagem com transição suave */}
