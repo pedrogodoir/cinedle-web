@@ -22,6 +22,8 @@ type PosterProps = {
   colorBlind?: boolean;
 };
 
+const MAX_ATTEMPTS = 6;
+
 export default function Poster({ date, colorBlind }: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +82,7 @@ export default function Poster({ date, colorBlind }: PosterProps) {
     fetchInitialPoster();
   }, [date]); const handleSubmitGuess = async (movie: MovieResult) => {
     // Verifica se já atingiu o limite de tentativas
-    if (iteration > 6) {
+    if (iteration > MAX_ATTEMPTS) {
       return;
     }
 
@@ -133,7 +135,7 @@ export default function Poster({ date, colorBlind }: PosterProps) {
         setIteration((prev) => prev + 1);
 
         // Se atingiu 6 tentativas e ainda não acertou, mostra mensagem
-        if (iteration >= 6) {
+        if (iteration >= MAX_ATTEMPTS) {
           // TODO: Implementar tela de derrota
           const fail_sound = new Audio("/sounds/fail_sound.mp3");
           fail_sound.play();   
@@ -169,7 +171,7 @@ export default function Poster({ date, colorBlind }: PosterProps) {
       movieId={correctMovieId || 0}
       totalAttempts={posterTry?.iterations || iteration - 1}
     />
-  ) : iteration > 6 ?(
+  ) : iteration > MAX_ATTEMPTS ?(
     <GameOverScreenPoster
       movieId={correctMovieId || 0}
       totalAttempts={posterTry?.iterations || iteration - 1}
@@ -196,9 +198,9 @@ export default function Poster({ date, colorBlind }: PosterProps) {
       {/* Contador de tentativas com cores */}
       <div className="text-white text-sm mb-2 font-medium">
         <span className={iteration > 4 ? "text-yellow-400" : ""}>
-          Tentativa {Math.min(iteration, 6)} de 6
+          Tentativa {Math.min(iteration, MAX_ATTEMPTS)} de {MAX_ATTEMPTS}
         </span>
-        {iteration > 6 && (
+        {iteration > MAX_ATTEMPTS && (
           <div className="text-red-400 text-xs mt-1">
             Máximo de tentativas atingido
           </div>
@@ -227,7 +229,7 @@ export default function Poster({ date, colorBlind }: PosterProps) {
       <SearchInput
         guesses={posterTry?.movieIds || []}
         onSubmitGuess={handleSubmitGuess}
-        disabled={isLoading || iteration > 6}
+        disabled={isLoading || iteration > MAX_ATTEMPTS}
         showButton={true}
       />
     </div>
