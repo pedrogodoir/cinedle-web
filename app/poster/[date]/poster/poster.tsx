@@ -135,6 +135,8 @@ export default function Poster({ date, colorBlind }: PosterProps) {
         // Se atingiu 6 tentativas e ainda não acertou, mostra mensagem
         if (iteration >= 6) {
           // TODO: Implementar tela de derrota
+          const fail_sound = new Audio("/sounds/fail_sound.mp3");
+          fail_sound.play();   
           const res = await axios.get<PosterGame>(
             `${process.env.NEXT_PUBLIC_API_URL}/poster-games`,
             {
