@@ -5,4 +5,5 @@ export type HistoryItem = {
   id: number;
   date: string;
   totalAttempts?: number;
+  mode?: "classic" | "poster"; // Qual modo foi jogado
 };

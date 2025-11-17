@@ -13,7 +13,7 @@ import { HistoryItem } from "@/lib/types/historyItem";
 import { Guess } from "@/lib/types/movieGuess";
 import { MovieResult } from "@/lib/types/resultSearch";
 import {
-  appendHistoryItem,
+  appendHistoryClassic,
   appendTryClassic,
   clearTryClassic, // Adicione esta linha
   getTryClassic,
@@ -64,9 +64,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
         }
       );
 
-      const guess: Guess = res.data;
-
-      if (guess.res.correct === true) {
+      const guess: Guess = res.data; if (guess.res.correct === true) {
         const audio = new Audio("/sounds/correct_guess.mp3");
         audio.play();
 
@@ -75,9 +73,10 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           date: date,
           id: guess.movie.id,
           totalAttempts: guesses.length + 1,
+          mode: "classic",
         };
 
-        appendHistoryItem(newHistoryItem);
+        appendHistoryClassic(newHistoryItem);
         clearTryClassic(date);
         setIsWin(true);
       } else {

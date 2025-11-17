@@ -43,11 +43,11 @@ export function Header() {
     if (currentPath.startsWith("/poster"))
       return <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-blue-500">Poster</p>;
     return (
-        <div className="flex">
-          <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold">Cine</p>
-          <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-red-500">dle</p>
-        </div>
-      );
+      <div className="flex">
+        <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold">Cine</p>
+        <p className="z-10 text-5xl max-[500px]:text-4xl max-[350px]:text-2xl font-extrabold text-red-500">dle</p>
+      </div>
+    );
   };
 
   // Função para navegar para outra rota
@@ -65,7 +65,10 @@ export function Header() {
       name: "Classic",
       path: `/classic/${new Date().toISOString().split("T")[0]}`, // Gera a data no formato "ano-mês-dia"
     },
-    // { name: "Poster", path: "/poster" },
+    {
+      name: "Poster",
+      path: `/poster/${new Date().toISOString().split("T")[0]}`, // Gera a data no formato "ano-mês-dia"
+    }
   ];
 
   return (
@@ -80,21 +83,32 @@ export function Header() {
             className="flex items-center justify-center gap-2 transition cursor-pointer"
           >
             {getHeaderText()}
-            <ChevronDownIcon className="w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"/>
+            <ChevronDownIcon className="w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6" />
           </button>
-        )}
-
-        {isDropdownOpen && (
+        )}        {isDropdownOpen && (
           <div className="absolute right-0 mt-2 bg-zinc-950 text-white rounded-lg shadow-lg w-full z-20 border-3 border-zinc-700">
-            {routes.map((route) => (
-              <button
-                key={route.name}
-                onClick={() => navigateTo(route.path)}
-                className="block w-full text-left text-lg font-medium px-2 py-1 hover:bg-zinc-700"
-              >
-                {route.name}
-              </button>
-            ))}
+            {routes
+              .filter((route) => {
+                // Não mostra "Home" se estiver na home
+                if (route.path === "/" && currentPath === "/") return false;
+
+                // Não mostra "Classic" se estiver no Classic
+                if (route.path.startsWith("/classic") && currentPath.startsWith("/classic")) return false;
+
+                // Não mostra "Poster" se estiver no Poster
+                if (route.path.startsWith("/poster") && currentPath.startsWith("/poster")) return false;
+
+                return true;
+              })
+              .map((route) => (
+                <button
+                  key={route.name}
+                  onClick={() => navigateTo(route.path)}
+                  className="block w-full text-left text-lg font-medium px-2 py-1 hover:bg-zinc-700"
+                >
+                  {route.name}
+                </button>
+              ))}
           </div>
         )}
       </div>

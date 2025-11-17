@@ -8,6 +8,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // pega a data atual no formato yyyy-mm-dd e adiciona no caminho
   const hrefClassic = "/classic/" + new Date().toISOString().split("T")[0];
+  const hrefPoster = "/poster/" + new Date().toISOString().split("T")[0];
 
   return (
     <div className="flex flex-col items-center justify-items-center h-screen min-w-screen bg-black bg-[url(/bg.webp)] bg-cover bg-center bg-no-repeat">
@@ -44,10 +45,10 @@ export default function Home() {
           <p className="text-left">Try to guess the movie using color-coded hints that show how close you are to the right details!</p>
         </Link>
 
-        <div className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 text-white gap-2 cursor-pointer hover:scale-105 transition-transform">
+        <Link href={hrefPoster} className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 text-white gap-2 cursor-pointer hover:scale-105 transition-transform">
           <h1 className="text-3xl font-extrabold">Poster</h1>
           <p>Coming soon!</p>
-        </div>
+        </Link>
       </div>
     </div>
   );

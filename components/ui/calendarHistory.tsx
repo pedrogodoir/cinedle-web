@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import {
-  Check,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  Check,
 } from "lucide-react";
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 
@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
   data: HistoryItem[];
+  currentMode?: "classic" | "poster"; // Modo atual da página
 };
 
 function Calendar({
@@ -28,6 +29,7 @@ function Calendar({
   formatters,
   components,
   data,
+  currentMode = "classic",
   ...props
 }: CalendarProps) {
   const defaultClassNames = getDefaultClassNames();
@@ -35,7 +37,24 @@ function Calendar({
   const router = useRouter();
 
   const handleDayClick = (date: Date) => {
-    const href = `/classic/${date.toISOString().split("T")[0]}`;
+    // Procura no histórico para ver qual modo foi jogado nessa data
+    const dateStr = date.toISOString().split("T")[0];
+    const historyItem = data.find((item) => {
+      const temp = item.date.split("T")[0];
+      const [year, month, day] = temp.split("-").map(Number);
+      const itemDate = new Date(year, month - 1, day);
+
+      return (
+        date.getFullYear() === itemDate.getFullYear() &&
+        date.getMonth() === itemDate.getMonth() &&
+        date.getDate() === itemDate.getDate()
+      );
+    });
+
+    // Se encontrou no histórico, usa o modo do histórico
+    // Senão, usa o modo atual da página (classic ou poster)
+    const mode = historyItem?.mode || currentMode;
+    const href = `/${mode}/${dateStr}`;
     router.push(href);
   };
 
@@ -169,27 +188,30 @@ function Calendar({
           return (
             <ChevronDownIcon className={cn("size-4", className)} {...props} />
           );
-        },
-        DayButton: (props) => (
-          <CalendarDayButton
-            {...props}
-            onClick={() => handleDayClick(props.day.date)}
-            isGuessed={data.some((item) => {
-              //fuso horário deu bo, isso aqui   é uma gambiarra pra comparar só a data
-              const temp = item.date.split("T")[0];
-              const [year, month, day] = temp.split("-").map(Number);
-              const itemDate = new Date(year, month - 1, day); // month - 1 porque Date usa 0-11 para meses :(
-              const dayDate = props.day.date;
+        }, DayButton: (props) => {
+          // Verifica se existe vitória neste dia (no modo atual da página)
+          const dayData = data.find((item) => {
+            const temp = item.date.split("T")[0];
+            const [year, month, day] = temp.split("-").map(Number);
+            const itemDate = new Date(year, month - 1, day);
+            const dayDate = props.day.date;
 
-              return (
-                dayDate.getFullYear() === itemDate.getFullYear() &&
-                dayDate.getMonth() === itemDate.getMonth() &&
-                dayDate.getDate() === itemDate.getDate()
-              );
-            })}
-            buttonVariant={buttonVariant}
-          />
-        ),
+            return (
+              dayDate.getFullYear() === itemDate.getFullYear() &&
+              dayDate.getMonth() === itemDate.getMonth() &&
+              dayDate.getDate() === itemDate.getDate()
+            );
+          });
+
+          return (
+            <CalendarDayButton
+              {...props}
+              onClick={() => handleDayClick(props.day.date)}
+              hasWin={!!dayData}
+              buttonVariant={buttonVariant}
+            />
+          );
+        },
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -208,14 +230,14 @@ function Calendar({
 
 type CalendarDayButtonProps = React.ComponentProps<typeof DayButton> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
-  isGuessed: boolean;
+  hasWin?: boolean;
 };
 
 function CalendarDayButton({
   className,
   day,
   modifiers,
-  isGuessed,
+  hasWin,
   ...props
 }: CalendarDayButtonProps) {
   const defaultClassNames = getDefaultClassNames();
@@ -224,6 +246,7 @@ function CalendarDayButton({
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus();
   }, [modifiers.focused]);
+
   return (
     <Button
       {...props}
@@ -242,15 +265,14 @@ function CalendarDayButton({
       data-range-middle={modifiers.range_middle}
       className={cn(
         "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70",
-        isGuessed && "border-2 border-green-700",
+        hasWin && "border-2 border-green-700",
         defaultClassNames.day,
         className
       )}
     >
       <span>{day.date.getDate()}</span>
-      <div className="">
-        {" "}
-        {isGuessed ? <Check color="green" /> : <div className="h-6 w-6" />}
+      <div className="flex items-center justify-center h-6">
+        {hasWin && <Check className="w-5 h-5" color="green" />}
       </div>
     </Button>
   );
