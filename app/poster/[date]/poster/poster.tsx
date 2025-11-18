@@ -186,6 +186,7 @@ export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
       <div className="flex items-center justify-center p-2 bg-zinc-950 bg-opacity-50 border-3 border-zinc-700 rounded-lg shadow-lg max-w-md mx-auto transition-all duration-300">
         {urlImg ? (
           <img
+            style={ grayFilter ? { filter: "grayscale(100%)" }: {}}
             src={urlImg}
             width="300"
             alt="Movie poster"

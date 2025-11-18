@@ -176,11 +176,21 @@ export function getGrayFilter(): boolean {
   return localStorage.getItem("grayFilter") === "true";
 }
 export function setGrayFilter(value: boolean) {
-  if (typeof window === "undefined") {
-    console.log("setGrayFilter called on server side");
-    return;
-  }
-  localStorage.setItem("grayFilter", value ? "true" : "false");
+
+  const handler = setTimeout(() => {
+    const fetchData = async () => {
+      try {
+        if (typeof window === "undefined") {
+          console.log("setGrayFilter called on server side");
+          return;
+        }
+        localStorage.setItem("grayFilter", value ? "true" : "false");
+      } catch {
+        console.log("erro")
+      }
+    };
+    fetchData();
+  }, 250);
 }
 
 
