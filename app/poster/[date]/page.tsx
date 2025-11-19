@@ -29,7 +29,7 @@ function dateExistsInHistory({
 }
 
 export default function Page() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
   const [colorBlind, setColorBlind] = useState(getColorBlind());
