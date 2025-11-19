@@ -166,6 +166,34 @@ export function clearTryClassic(date: string) {
     localStorage.setItem("tryClassic", JSON.stringify(filteredTryClassic));
   }
 }
+// ============ GRAY FILTER FUNCTIONS ===========
+
+export function getGrayFilter(): boolean {
+  if (typeof window === "undefined") {
+    console.log("getGrayFilter called on server side");
+    return false;
+  }
+  return localStorage.getItem("grayFilter") === "true";
+}
+export function setGrayFilter(value: boolean) {
+
+  const handler = setTimeout(() => {
+    const fetchData = async () => {
+      try {
+        if (typeof window === "undefined") {
+          console.log("setGrayFilter called on server side");
+          return;
+        }
+        localStorage.setItem("grayFilter", value ? "true" : "false");
+      } catch {
+        console.log("erro")
+      }
+    };
+    fetchData();
+  }, 250);
+}
+
+
 
 // ============ POSTER MODE FUNCTIONS ============
 

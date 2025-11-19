@@ -21,11 +21,12 @@ import { PosterTry } from "@/lib/types/posterTry";
 type PosterProps = {
   date: string;
   colorBlind?: boolean;
+  grayFilter?: boolean
 };
 
 const MAX_ATTEMPTS = 6;
 
-export default function Poster({ date, colorBlind }: PosterProps) {
+export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWin, setIsWin] = useState(false);
@@ -185,6 +186,7 @@ export default function Poster({ date, colorBlind }: PosterProps) {
       <div className="flex items-center justify-center p-2 bg-zinc-950 bg-opacity-50 border-3 border-zinc-700 rounded-lg shadow-lg max-w-md mx-auto transition-all duration-300">
         {urlImg ? (
           <img
+            style={ grayFilter ? { filter: "grayscale(100%)" }: {}}
             src={urlImg}
             width="300"
             alt="Movie poster"

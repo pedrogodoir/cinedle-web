@@ -75,6 +75,8 @@ export default function Page() {
           setIsModalOpen(false);
         }}
         colorBlind={colorBlind}
+        grayFilter={ false }
+        setGrayFilter={ () => {}}
         setColorBlind={setColorBlind}
       />
 

@@ -31,6 +31,8 @@ export default function Home() {
           setIsModalOpen(false);
         }}
         colorBlind={false}
+        grayFilter={false}
+        setGrayFilter={() => {}}
         setColorBlind={() => {}}
       >
         <p></p>
