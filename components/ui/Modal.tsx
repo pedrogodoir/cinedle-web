@@ -18,7 +18,7 @@ export const Modal = ({
 	children?: React.ReactNode;
 	}) => {
 	if (!isOpen) return null;
-
+	
 	return (
 		<div className="fixed inset-0 z-50 bg-black/50 flex justify-center items-center">
 			<div className="relative bg-zinc-950 border-3 border-zinc-700 p-6 rounded-md shadow-lg max-w-sm md:max-w-md w-full">
@@ -75,11 +75,11 @@ export const Modal = ({
 								className="peer appearance-none w-11 h-5 bg-zinc-200 rounded-full checked:bg-red-500 cursor-pointer transition-colors duration-300"
 							/>
 							<label
-								htmlFor="switch-darkmode"
+								htmlFor="switch-gray-filter"
 								className="absolute top-0 left-0 w-5 h-5 bg-white rounded-full border border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-6 peer-checked:border-gray-300 cursor-pointer">
 							</label>		
 						</div>
-						<label htmlFor="switch-darkmode" className="text-zinc-200 text-sm cursor-pointer">
+						<label htmlFor="switch-gray-filter" className="text-zinc-200 text-sm cursor-pointer">
 							<p className="font-medium">Gray Filter</p>
 						</label>
 					</div>
