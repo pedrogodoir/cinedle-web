@@ -123,6 +123,7 @@ export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
           id: movieId,
           totalAttempts: iteration,
           mode: "poster",
+          result: "win",
         };
 
         appendHistoryPoster(newHistoryItem);
@@ -155,6 +156,7 @@ export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
             id: res.data.res.movie_id,
             totalAttempts: iteration,
             mode: "poster",
+            result: "lose"
           };
           appendLoseHistoryPoster(newHistoryItem);
           clearTryPoster(date);
