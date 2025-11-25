@@ -158,7 +158,7 @@ export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
             mode: "poster",
             result: "lose"
           };
-          appendLoseHistoryPoster(newHistoryItem);
+          appendHistoryPoster(newHistoryItem);
           clearTryPoster(date);
           setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");

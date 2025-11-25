@@ -17,8 +17,7 @@ import { useRouter } from "next/navigation";
 
 type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
-  winData: HistoryItem[];
-  loseData?: HistoryItem[];
+  data: HistoryItem[];
   currentMode?: "classic" | "poster"; // Modo atual da página
 };
 
@@ -30,8 +29,7 @@ function Calendar({
   buttonVariant = "ghost",
   formatters,
   components,
-  winData,
-  loseData,
+  data,
   currentMode = "classic",
   ...props
 }: CalendarProps) {
@@ -42,7 +40,7 @@ function Calendar({
   const handleDayClick = (date: Date) => {
     // Procura no histórico para ver qual modo foi jogado nessa data
     const dateStr = date.toISOString().split("T")[0];
-    const historyItem = winData.find((item) => {
+    const historyItem = data.find((item) => {
       const temp = item.date.split("T")[0];
       const [year, month, day] = temp.split("-").map(Number);
       const itemDate = new Date(year, month - 1, day);
@@ -193,28 +191,13 @@ function Calendar({
           );
         }, DayButton: (props) => {
 
-          
-
-
-          const dayData = winData.find((item) => {
-            console.log(winData);
+          const dayData = data.find((item) => {
+            console.log(data);
             const temp = item.date.split("T")[0];
             const [year, month, day] = temp.split("-").map(Number);
             const itemDate = new Date(year, month - 1, day);
             const dayDate = props.day.date;
 
-            return (
-              dayDate.getFullYear() === itemDate.getFullYear() &&
-              dayDate.getMonth() === itemDate.getMonth() &&
-              dayDate.getDate() === itemDate.getDate()
-            );
-          });
-
-          const loseDayData = loseData?.find((item) => {
-            const temp = item.date.split("T")[0];
-            const [year, month, day] = temp.split("-").map(Number);
-            const itemDate = new Date(year, month - 1, day);
-            const dayDate = props.day.date;
             return (
               dayDate.getFullYear() === itemDate.getFullYear() &&
               dayDate.getMonth() === itemDate.getMonth() &&
@@ -227,7 +210,7 @@ function Calendar({
               {...props}
               onClick={() => handleDayClick(props.day.date)}
               hasWin={dayData?.result === "win"}
-              hasLose={loseDayData?.result === "lose"}
+              hasLose={dayData?.result === "lose"}
 
               buttonVariant={buttonVariant}
             />
