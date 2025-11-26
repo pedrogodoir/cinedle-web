@@ -36,25 +36,13 @@ export function getHistoryClassic(): HistoryItem[] {
 export function appendHistoryPoster(item: HistoryItem) {
   if (typeof window === "undefined") return;
 
-  const stored = localStorage.getItem("historyPoster");
+  const stored = localStorage.getItem("posterHistory");
   const history: HistoryItem[] = stored ? JSON.parse(stored) : [];
 
   history.push(item);
-  localStorage.setItem("historyPoster", JSON.stringify(history));
+  localStorage.setItem("posterHistory", JSON.stringify(history));
 }
 
-/**
- * Adiciona um item no histórico de derrotas do Poster
- */
-export function appendLoseHistoryPoster(item: HistoryItem) {
-  if (typeof window === "undefined") return;
-
-  const stored = localStorage.getItem("LoseHistoryPoster");
-  const history: HistoryItem[] = stored ? JSON.parse(stored) : [];
-
-  history.push(item);
-  localStorage.setItem("LoseHistoryPoster", JSON.stringify(history));
-}
 
 /**
  * Lê o histórico de derrota do Poster
@@ -64,19 +52,21 @@ export function getLoseHistoryPoster(): HistoryItem[] {
     return [];
   }
 
-  const stored = localStorage.getItem("LoseHistoryPoster");
-  return stored ? JSON.parse(stored) : [];
+  const stored = localStorage.getItem("posterHistory");
+  const history: HistoryItem[] = stored ? JSON.parse(stored) : [];
+
+  return history.filter(item => item.result === "lose");
 }
 
 /**
  * Lê todo o histórico do Poster
  */
-export function getHistoryPoster(): HistoryItem[] {
+export function getPosterHistory(): HistoryItem[] {
   if (typeof window === "undefined") {
     return [];
   }
 
-  const stored = localStorage.getItem("historyPoster");
+  const stored = localStorage.getItem("posterHistory");
   return stored ? JSON.parse(stored) : [];
 }
 
@@ -90,7 +80,7 @@ export function getHistoryCombined(): HistoryItem[] {
   }
 
   const classic = getHistoryClassic();
-  const poster = getHistoryPoster();
+  const poster = getPosterHistory();
 
   return [...classic, ...poster];
 }

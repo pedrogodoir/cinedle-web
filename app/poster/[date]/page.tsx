@@ -3,7 +3,7 @@ import { Header } from "@/components/ui/header";
 import { History } from "@/components/ui/history";
 import { Modal } from "@/components/ui/Modal";
 import { HistoryItem } from "@/lib/types/historyItem";
-import { getColorBlind, getHistoryPoster, getLoseHistoryPoster, getGrayFilter} from "@/lib/useLocalstorage";
+import { getColorBlind, getPosterHistory, getLoseHistoryPoster, getGrayFilter} from "@/lib/useLocalstorage";
 import axios from "axios";
 import { Menu } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -57,7 +57,7 @@ export default function Page() {
     return () => clearTimeout(handler);
   }, [search]);
   const date = useParams<{ date: string }>().date;
-  const winHistory = getHistoryPoster();
+  const winHistory = getPosterHistory();
   const loseHistory = getLoseHistoryPoster();
   const h = winHistory.find((item) => item.date.split("T")[0] === date);
   const h2 = loseHistory.find((item) => item.date.split("T")[0] === date);

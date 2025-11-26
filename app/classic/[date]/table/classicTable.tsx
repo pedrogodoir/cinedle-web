@@ -76,6 +76,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           id: guess.movie.id,
           totalAttempts: guesses.length + 1,
           mode: "classic",
+          result: "win"
         };
 
         appendHistoryClassic(newHistoryItem);

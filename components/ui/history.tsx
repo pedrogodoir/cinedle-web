@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getHistoryClassic, getHistoryPoster } from "@/lib/useLocalstorage";
+import { getHistoryClassic, getPosterHistory, getLoseHistoryPoster } from "@/lib/useLocalstorage";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendarHistory";
 
@@ -16,11 +16,15 @@ const firstDay = new Date("2025-10-10");
 interface HistoryProps {
   date: string;
   currentMode?: "classic" | "poster";
+
 }
 
-export function History({ date, currentMode = "classic" }: HistoryProps) {
+export function History({ date, currentMode = "classic"}: HistoryProps) {
   // Carrega apenas o histórico do modo atual
-  const history = currentMode === "classic" ? getHistoryClassic() : getHistoryPoster();
+  const history = currentMode === "classic" ? getHistoryClassic() : getPosterHistory();
+  
+  const LoseHistoryPoster = getLoseHistoryPoster();
+  
 
   // Converte a string de data para objeto Date
   const selectedDate = new Date(date + "T00:00:00");
