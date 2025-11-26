@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getHistoryClassic, getHistoryPoster, getLoseHistoryPoster } from "@/lib/useLocalstorage";
+import { getHistoryClassic, getPosterHistory, getLoseHistoryPoster } from "@/lib/useLocalstorage";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendarHistory";
 
@@ -21,7 +21,7 @@ interface HistoryProps {
 
 export function History({ date, currentMode = "classic"}: HistoryProps) {
   // Carrega apenas o histórico do modo atual
-  const history = currentMode === "classic" ? getHistoryClassic() : getHistoryPoster();
+  const history = currentMode === "classic" ? getHistoryClassic() : getPosterHistory();
   
   const LoseHistoryPoster = getLoseHistoryPoster();
   
@@ -50,8 +50,7 @@ export function History({ date, currentMode = "classic"}: HistoryProps) {
             <Calendar
               mode="single"
               selected={selectedDate}
-              winData={history}
-              loseData={LoseHistoryPoster}
+              data={history}
               currentMode={currentMode}
               className="w-full min-h-[450px]"
               disabled={(date) => date > new Date() || date < firstDay}
