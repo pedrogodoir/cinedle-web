@@ -190,9 +190,8 @@ function Calendar({
             <ChevronDownIcon className={cn("size-4", className)} {...props} />
           );
         }, DayButton: (props) => {
-          console.log(data)
+      
           const dayData = data.find((item) => {
-            console.log(data);
             const temp = item.date.split("T")[0];
             const [year, month, day] = temp.split("-").map(Number);
             const itemDate = new Date(year, month - 1, day);
