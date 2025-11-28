@@ -76,7 +76,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
           id: guess.movie.id,
           totalAttempts: guesses.length + 1,
           mode: "classic",
-          result: "win"
+          result: "win",
         };
 
         appendHistoryClassic(newHistoryItem);
@@ -202,13 +202,15 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
                 {/* Actor */}
                 <TableCell className="flex items-center justify-center">
                   <div
-                    className={`h-full w-full align-center flex items-center justify-center ${getCellColor(
+                    className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${getCellColor(
                       guess.res.actors
                     )} rounded-md`}
                   >
-                    <p className="bg-black/25 w-full p-1">
-                      {guess.movie.actors[0]?.name || "N/A"}
-                    </p>
+                    {guess.movie.actors.map((a) => (
+                      <p key={a.id} className="bg-black/25 w-full p-1">
+                        {a.name}
+                      </p>
+                    ))}
                   </div>
                 </TableCell>
 
