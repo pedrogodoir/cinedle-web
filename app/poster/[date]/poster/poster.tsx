@@ -72,6 +72,7 @@ export default function Poster({ date}: PosterProps) {
               },
             }
           );
+          setIteration((prev) => prev + 1);
           const updatedTry = getTryPoster(date);
           setUrlImg(res.data.res.next_image);
         }
@@ -92,6 +93,8 @@ export default function Poster({ date}: PosterProps) {
     setIsLoading(true);
     try {
       const movieId = Number(movie.id);
+
+      setIteration((prev) => prev + 1);
 
       const res = await axios.get<PosterGet>(
         `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
@@ -136,7 +139,6 @@ export default function Poster({ date}: PosterProps) {
         if (posterGet.res.next_image) {
           setUrlImg(posterGet.res.next_image);
         }
-        setIteration((prev) => prev + 1);
 
         // Se atingiu 6 tentativas e ainda não acertou, mostra mensagem
         if (iteration >= MAX_ATTEMPTS) {
