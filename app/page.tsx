@@ -49,7 +49,6 @@ export default function Home() {
             you are to the right details!
           </p>
         </Link>
-
         <Link
           href={hrefPoster}
           className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 text-white gap-2 cursor-pointer hover:scale-105 transition-transform"
