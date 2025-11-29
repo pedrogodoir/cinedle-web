@@ -27,7 +27,7 @@ export default function GrayFilterSwitch({
 				/>
 
 				<div className="w-16 h-9 relative rounded-full overflow-hidden shadow-inner  transition-all">
-					<div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+					<div className="absolute inset-0 bg-gradient-to-r from-blue-600  to-blue-400" />
 
 					<div
 						className={`absolute inset-0 bg-zinc-600 transition-opacity duration-500 ease-in-out ${
@@ -47,7 +47,7 @@ export default function GrayFilterSwitch({
 					{/* Ícone Colorido */}
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						className={`w-4 h-4 text-purple-600 transition-opacity duration-300 absolute ${
+						className={`w-4 h-4 text-blue-600 transition-opacity duration-300 absolute ${
 							grayFilter ? "opacity-0 scale-50" : "opacity-100 scale-100"
 						}`}
 						fill="none"
@@ -92,7 +92,7 @@ export default function GrayFilterSwitch({
 					className={`text-sm font-bold transition-colors duration-300 ${
 						grayFilter
 							? "text-zinc-400"
-							: "text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400"
+							: "text-transparent bg-clip-text bg-gradient-to-r from-blue-600  to-blue-400"
 					}`}
 				>
 					{grayFilter ? "GRAY MODE" : "COLOR MODE"}
