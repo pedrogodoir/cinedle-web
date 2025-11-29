@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
 import { Modal } from "@/components/ui/Modal";
 import { Menu } from "lucide-react";
@@ -37,20 +38,37 @@ export default function Home() {
       >
         <p></p>
       </Modal>
-
       <div className="flex items-center justify-items-center flex-1 gap-10 text-center max-[500px]:flex-col flex-row ">
         <Link
           href={hrefClassic}
           className="flex flex-col text-white items-start bg-red-500 h-72 w-56 rounded-4xl shadow-xl p-4 gap-2 cursor-pointer hover:scale-105 transition-transform"
         >
           <h1 className="text-3xl font-extrabold">Classic</h1>
-          <p className="text-left">Try to guess the movie using color-coded hints that show how close you are to the right details!</p>
+          <p className="text-left">
+            Try to guess the movie using color-coded hints that show how close
+            you are to the right details!
+          </p>
         </Link>
-
-        <Link href={hrefPoster} className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 text-white gap-2 cursor-pointer hover:scale-105 transition-transform">
+        <Link
+          href={hrefPoster}
+          className="flex flex-col items-start bg-sky-500 h-72 w-56 rounded-4xl shadow-xl p-4 text-white gap-2 cursor-pointer hover:scale-105 transition-transform"
+        >
           <h1 className="text-3xl font-extrabold">Poster</h1>
-          <p>Coming soon!</p>
+          <p className="text-left">
+            Guess the movie from the poster alone! Pay attention to colors,
+            characters, objects, style, and typography, everything can be a
+            clue. Good luck!
+          </p>
         </Link>
+      </div>
+      <div className=" absolute bottom-10 ">
+        <a
+          href="https://forms.gle/FP2c2M96TheHE1Uu5"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button>Dê seu feedback!</Button>
+        </a>
       </div>
     </div>
   );
