@@ -70,14 +70,16 @@ export default function Page() {
           <div></div>          <Header />
           <div className="flex items-center justify-center gap-4 max-[500px]:gap-2 ">
             <History date={date} currentMode="poster" />
-            <Menu
+            {/* <Menu
               className="bg-white text-black rounded-full p-2 hover:bg-red-500 transition-colors cursor-pointer w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"
               onClick={() => setIsModalOpen(true)}
-            />
+            /> */}
           </div>
         </header>
-        {!dateExistsInHistory({ date, history: posterHistory }) ? (<GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />) : <></>}
-        <Modal
+          {/* {!dateExistsInHistory({ date, history: posterHistory }) ? (<GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />) : <></>} */}
+
+        {/*  MODAL PARA NOVAS CONFIGURAÇÕES */}
+        {/* <Modal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
@@ -86,7 +88,7 @@ export default function Page() {
           grayFilter={grayFilter}
           setGrayFilter={setGrayFilter}
           setColorBlind={setColorBlind}
-        />
+        /> */}
 
         {dateExistsInHistory({ date, history: posterHistory }) && h?.result=="win" ? (
 
@@ -96,7 +98,7 @@ export default function Page() {
           <GameOverScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts}
           />
         ) : (
-          <Poster date={date} colorBlind={colorBlind} grayFilter={grayFilter}/>
+          <Poster date={date} />
         )}
       </div>
     </div>

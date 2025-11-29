@@ -7,6 +7,7 @@ import {
   appendHistoryPoster,
   appendTryPoster,
   clearTryPoster,
+  getGrayFilter,
   getTryPoster,
 } from "@/lib/useLocalstorage";
 import axios from "axios";
@@ -16,24 +17,25 @@ import GameOverScreenPoster from "../gameOverScreen/gameOverScreen";
 import { PosterGet } from "@/lib/types/posterGet";
 import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
+  import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
 
 type PosterProps = {
   date: string;
-  colorBlind?: boolean;
-  grayFilter?: boolean
 };
 
 const MAX_ATTEMPTS = 6;
 
-export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
+export default function Poster({ date}: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWin, setIsWin] = useState(false);
   const [urlImg, setUrlImg] = useState<string>("");
   const [iteration, setIteration] = useState(1);
   const [correctMovieId, setCorrectMovieId] = useState<number | null>(null);
+  const [grayFilter, setGrayFilter] = useState(getGrayFilter());
   // Carrega o poster inicial e tentativas anteriores
   useEffect(() => {
+    setGrayFilter(true)
     const fetchInitialPoster = async () => {
       setIsLoading(true);
       try {
@@ -64,9 +66,9 @@ export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
             `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
             {
               params: {
-                movie_id: -1,
                 date: date,
                 iteration: 1,
+                movie_id: -1,
               },
             }
           );
@@ -182,7 +184,8 @@ export default function Poster({ date, colorBlind, grayFilter}: PosterProps) {
     />
 
   ) : (
-    <div className="flex flex-col flex-1 gap-5 text-center pt-10 max-w-full px-4">
+    <div className="flex flex-col flex-1 gap-5 text-center pt-10 max-w-full px-4 items-center justify-items-center  ">
+      <GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />
       {/* Container da imagem com transição suave */}
       <div className="flex items-center justify-center p-2 bg-zinc-950 bg-opacity-50 border-3 border-zinc-700 rounded-lg shadow-lg max-w-md mx-auto transition-all duration-300">
         {urlImg ? (
