@@ -59,7 +59,7 @@ export const Modal = ({
 					</div>
 
 
-					<div className="flex items-center gap-3">
+					{/* <div className="flex items-center gap-3">
 						<div className="relative inline-block w-11 h-5">
 							<input
 								onChange={(e) => {
@@ -82,7 +82,7 @@ export const Modal = ({
 						<label htmlFor="switch-gray-filter" className="text-zinc-200 text-sm cursor-pointer">
 							<p className="font-medium">Gray Filter</p>
 						</label>
-					</div>
+					</div> */}
 				</div>
 				<div className="mt-6">{children}</div>
 			</div>

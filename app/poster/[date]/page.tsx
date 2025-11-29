@@ -3,6 +3,7 @@ import { Header } from "@/components/ui/header";
 import { History } from "@/components/ui/history";
 import { Modal } from "@/components/ui/Modal";
 import { HistoryItem } from "@/lib/types/historyItem";
+import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
 import { getColorBlind, getPosterHistory, getLoseHistoryPoster, getGrayFilter} from "@/lib/useLocalstorage";
 import axios from "axios";
 import { Menu } from "lucide-react";
@@ -29,7 +30,7 @@ function dateExistsInHistory({
 }
 
 export default function Page() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
   const [colorBlind, setColorBlind] = useState(getColorBlind());
@@ -57,11 +58,11 @@ export default function Page() {
     return () => clearTimeout(handler);
   }, [search]);
   const date = useParams<{ date: string }>().date;
-  const winHistory = getPosterHistory();
-  const loseHistory = getLoseHistoryPoster();
-  const h = winHistory.find((item) => item.date.split("T")[0] === date);
-  const h2 = loseHistory.find((item) => item.date.split("T")[0] === date);
-  
+  const posterHistory = getPosterHistory();
+  const h = posterHistory.find((item) => item.date.split("T")[0] === date);
+
+  if(dateExistsInHistory({ date, history: posterHistory }) && (h?.result=="win" || h?.result=="lose") && isModalOpen) setIsModalOpen(false)
+
   return (
     <div className="flex flex-col items-center justify-items-center bg-black ">
       <div className="bg-[url(/bg-classic.webp)] bg-center bg-cover bg-no-repeat w-full min-h-screen bg-black flex flex-col items-center justify-start px-4">
@@ -69,13 +70,16 @@ export default function Page() {
           <div></div>          <Header />
           <div className="flex items-center justify-center gap-4 max-[500px]:gap-2 ">
             <History date={date} currentMode="poster" />
-            <Menu
+            {/* <Menu
               className="bg-white text-black rounded-full p-2 hover:bg-red-500 transition-colors cursor-pointer w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"
               onClick={() => setIsModalOpen(true)}
-            />
+            /> */}
           </div>
         </header>
-        <Modal
+          {/* {!dateExistsInHistory({ date, history: posterHistory }) ? (<GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />) : <></>} */}
+
+        {/*  MODAL PARA NOVAS CONFIGURAÇÕES */}
+        {/* <Modal
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
@@ -84,16 +88,17 @@ export default function Page() {
           grayFilter={grayFilter}
           setGrayFilter={setGrayFilter}
           setColorBlind={setColorBlind}
-        />
+        /> */}
 
-        {dateExistsInHistory({ date, history: winHistory }) ? (
+        {dateExistsInHistory({ date, history: posterHistory }) && h?.result=="win" ? (
+
           <WinScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts} />
 
-        ) : dateExistsInHistory({ date, history: loseHistory }) ? (
-          <GameOverScreenPoster movieId={h2?.id} totalAttempts={h2?.totalAttempts}
+        ) : dateExistsInHistory({ date, history: posterHistory }) && h?.result=="lose" ? (
+          <GameOverScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts}
           />
         ) : (
-          <Poster date={date} colorBlind={colorBlind} grayFilter={grayFilter}/>
+          <Poster date={date} />
         )}
       </div>
     </div>
