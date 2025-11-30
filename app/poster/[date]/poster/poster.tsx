@@ -4,10 +4,10 @@ import { SearchInput } from "@/components/ui/input";
 import { HistoryItem } from "@/lib/types/historyItem";
 import { MovieResult } from "@/lib/types/resultSearch";
 import {
-  appendLoseHistoryPoster,
   appendHistoryPoster,
   appendTryPoster,
   clearTryPoster,
+  getGrayFilter,
   getTryPoster,
 } from "@/lib/useLocalstorage";
 import axios from "axios";
@@ -15,31 +15,34 @@ import { useEffect, useState } from "react";
 import WinScreenPoster from "../winScreen/winScreenPoster";
 import GameOverScreenPoster from "../gameOverScreen/gameOverScreen";
 import { PosterGet } from "@/lib/types/posterGet";
+import { PosterGetImage } from "@/lib/types/posterGetImage";
 import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
+import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
 
 type PosterProps = {
   date: string;
-  colorBlind?: boolean;
 };
 
 const MAX_ATTEMPTS = 6;
 
-export default function Poster({ date, colorBlind }: PosterProps) {
+export default function Poster({ date }: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWin, setIsWin] = useState(false);
   const [urlImg, setUrlImg] = useState<string>("");
   const [iteration, setIteration] = useState(1);
   const [correctMovieId, setCorrectMovieId] = useState<number | null>(null);
+  const [grayFilter, setGrayFilter] = useState(getGrayFilter());
+  
   // Carrega o poster inicial e tentativas anteriores
   useEffect(() => {
+    setGrayFilter(true)
     const fetchInitialPoster = async () => {
       setIsLoading(true);
       try {
         // Verifica se já existem tentativas salvas
         const storedTry = getTryPoster(date);
-
         if (storedTry) {
           // Se já tem tentativas, restaura o estado
           setPosterTry(storedTry);
@@ -47,31 +50,31 @@ export default function Poster({ date, colorBlind }: PosterProps) {
           setIteration(nextIteration);
 
           // Busca a imagem da próxima iteração (após a última tentativa)
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
-                movie_id: -1,
                 date: date,
-                iteration: nextIteration,
+                //  Soma +1 para a API (Estado 1 -> API 2)
+                iteration: nextIteration + 1,
               },
             }
           );
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         } else {
           // Se não tem tentativas, busca a primeira imagem
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
-                movie_id: -1,
                 date: date,
-                iteration: 1,
+                iteration: 2, // API espera 2 para a primeira imagem
               },
             }
           );
+          setIteration(1); 
           const updatedTry = getTryPoster(date);
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         }
       } catch (error) {
         console.error("Failed to fetch poster:", error);
@@ -97,10 +100,12 @@ export default function Poster({ date, colorBlind }: PosterProps) {
           params: {
             movie_id: movieId,
             date: date,
-            iteration: iteration,
+            //  Soma +1 para a API na verificação
+            iteration: iteration + 1,
           },
         }
       );
+      setIteration((prev) => prev + 1);
 
       const posterGet: PosterGet = res.data;
 
@@ -122,6 +127,7 @@ export default function Poster({ date, colorBlind }: PosterProps) {
           id: movieId,
           totalAttempts: iteration,
           mode: "poster",
+          result: "win",
         };
 
         appendHistoryPoster(newHistoryItem);
@@ -133,7 +139,6 @@ export default function Poster({ date, colorBlind }: PosterProps) {
         if (posterGet.res.next_image) {
           setUrlImg(posterGet.res.next_image);
         }
-        setIteration((prev) => prev + 1);
 
         // Se atingiu 6 tentativas e ainda não acertou, mostra mensagem
         if (iteration >= MAX_ATTEMPTS) {
@@ -154,12 +159,12 @@ export default function Poster({ date, colorBlind }: PosterProps) {
             id: res.data.res.movie_id,
             totalAttempts: iteration,
             mode: "poster",
+            result: "lose"
           };
-          appendLoseHistoryPoster(newHistoryItem);
+          appendHistoryPoster(newHistoryItem);
           clearTryPoster(date);
           setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");
-     
         }
       }
     } catch (error) {
@@ -171,7 +176,8 @@ export default function Poster({ date, colorBlind }: PosterProps) {
   }; return isWin ? (
     <WinScreenPoster
       movieId={correctMovieId || 0}
-      totalAttempts={posterTry?.iterations || iteration - 1}
+      // Ajuste na prop: como incrementamos antes do render, subtraímos 1 aqui
+      totalAttempts={posterTry?.iterations || iteration - 1} 
     />
   ) : iteration > MAX_ATTEMPTS ?(
     <GameOverScreenPoster
@@ -180,11 +186,13 @@ export default function Poster({ date, colorBlind }: PosterProps) {
     />
 
   ) : (
-    <div className="flex flex-col flex-1 gap-5 text-center pt-10 max-w-full px-4">
+    <div className="flex flex-col flex-1 gap-5 text-center pt-10 max-w-full px-4 items-center justify-items-center  ">
+      <GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />
       {/* Container da imagem com transição suave */}
       <div className="flex items-center justify-center p-2 bg-zinc-950 bg-opacity-50 border-3 border-zinc-700 rounded-lg shadow-lg max-w-md mx-auto transition-all duration-300">
         {urlImg ? (
           <img
+            style={ grayFilter ? { filter: "grayscale(100%)" }: {}}
             src={urlImg}
             width="300"
             alt="Movie poster"

@@ -265,17 +265,15 @@ const AbstractLineComponent = ({
       {/* Actor */}
       <TableCell className="flex items-center justify-center">
         <div
-          className={`h-full w-full align-center flex items-center justify-center ${getCellColor(
+          className={`h-full w-full align-center gap-0.5 flex-col flex items-center justify-center ${getCellColor(
             abstract.actors.status
           )} rounded-md`}
         >
-          {abstract.actors.values.length > 0 ? (
-            <p className="bg-black/25 w-full p-1">
-              {abstract.actors.values[0] || ""}
+          {abstract.actors.values.map((s) => (
+            <p key={s} className="bg-black/25 w-full p-1">
+              {s}
             </p>
-          ) : (
-            ""
-          )}
+          ))}
         </div>
       </TableCell>
 
