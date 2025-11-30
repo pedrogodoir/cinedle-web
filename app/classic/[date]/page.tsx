@@ -6,11 +6,12 @@ import { HistoryItem } from "@/lib/types/historyItem";
 import { getColorBlind, getHistoryClassic } from "@/lib/useLocalstorage";
 import axios from "axios";
 import { Menu } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import ClassicTable from "./table/classicTable";
 import WinScreenClassic from "./winScreen/winScreenClassic";
 import ColorBlindSwitch from "@/components/ui/ColorBlindSwitch";
+import { validateGameDate } from "@/lib/utils";
 
 type MovieResult = {
   id: string;
@@ -28,6 +29,31 @@ function dateExistsInHistory({
 }
 
 export default function Page() {
+
+    const router = useRouter(); 
+    const params = useParams<{ date: string }>();
+  
+    // Calcula a data correta
+    const validatedDate = useMemo(() => {
+      return validateGameDate(params.date);
+    }, [params.date]);
+  
+    useEffect(() => {
+      // Se a data que está na URL (params.date) for diferente da data validada (validatedDate)
+      // Significa que a URL está "errada" e precisa ser corrigida.
+      if (params.date !== validatedDate) {
+        router.replace(`/classic/${validatedDate}`);
+      }
+    }, [params.date, validatedDate, router]);
+  
+    // Se estivermos prestes a redirecionar, retornar um loading
+    if (params.date !== validatedDate) {
+      return (
+        <div className="flex h-screen w-full items-center justify-center bg-black">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-solid border-gray-200 border-t-red-700 dark:border-gray-700 dark:border-t-red-600"></div>
+        </div>
+      );
+    }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
@@ -60,7 +86,7 @@ export default function Page() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  const date = useParams<{ date: string }>().date;
+  const date = validatedDate;
   const history = getHistoryClassic();
   const h = history.find((item) => item.date.split("T")[0] === date);
 
