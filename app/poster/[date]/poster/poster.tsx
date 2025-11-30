@@ -15,9 +15,10 @@ import { useEffect, useState } from "react";
 import WinScreenPoster from "../winScreen/winScreenPoster";
 import GameOverScreenPoster from "../gameOverScreen/gameOverScreen";
 import { PosterGet } from "@/lib/types/posterGet";
+import { PosterGetImage } from "@/lib/types/posterGetImage";
 import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
-  import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
+import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
 
 type PosterProps = {
   date: string;
@@ -25,7 +26,7 @@ type PosterProps = {
 
 const MAX_ATTEMPTS = 6;
 
-export default function Poster({ date}: PosterProps) {
+export default function Poster({ date }: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWin, setIsWin] = useState(false);
@@ -33,6 +34,7 @@ export default function Poster({ date}: PosterProps) {
   const [iteration, setIteration] = useState(1);
   const [correctMovieId, setCorrectMovieId] = useState<number | null>(null);
   const [grayFilter, setGrayFilter] = useState(getGrayFilter());
+  
   // Carrega o poster inicial e tentativas anteriores
   useEffect(() => {
     setGrayFilter(true)
@@ -41,7 +43,6 @@ export default function Poster({ date}: PosterProps) {
       try {
         // Verifica se já existem tentativas salvas
         const storedTry = getTryPoster(date);
-
         if (storedTry) {
           // Se já tem tentativas, restaura o estado
           setPosterTry(storedTry);
@@ -49,32 +50,31 @@ export default function Poster({ date}: PosterProps) {
           setIteration(nextIteration);
 
           // Busca a imagem da próxima iteração (após a última tentativa)
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
-                movie_id: -1,
                 date: date,
-                iteration: nextIteration,
+                //  Soma +1 para a API (Estado 1 -> API 2)
+                iteration: nextIteration + 1,
               },
             }
           );
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         } else {
           // Se não tem tentativas, busca a primeira imagem
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
                 date: date,
-                iteration: 1,
-                movie_id: -1,
+                iteration: 2, // API espera 2 para a primeira imagem
               },
             }
           );
-          setIteration((prev) => prev + 1);
+          setIteration(1); 
           const updatedTry = getTryPoster(date);
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         }
       } catch (error) {
         console.error("Failed to fetch poster:", error);
@@ -94,18 +94,18 @@ export default function Poster({ date}: PosterProps) {
     try {
       const movieId = Number(movie.id);
 
-      setIteration((prev) => prev + 1);
-
       const res = await axios.get<PosterGet>(
         `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
         {
           params: {
             movie_id: movieId,
             date: date,
-            iteration: iteration,
+            //  Soma +1 para a API na verificação
+            iteration: iteration + 1,
           },
         }
       );
+      setIteration((prev) => prev + 1);
 
       const posterGet: PosterGet = res.data;
 
@@ -165,7 +165,6 @@ export default function Poster({ date}: PosterProps) {
           clearTryPoster(date);
           setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");
-     
         }
       }
     } catch (error) {
@@ -177,7 +176,8 @@ export default function Poster({ date}: PosterProps) {
   }; return isWin ? (
     <WinScreenPoster
       movieId={correctMovieId || 0}
-      totalAttempts={posterTry?.iterations || iteration - 1}
+      // Ajuste na prop: como incrementamos antes do render, subtraímos 1 aqui
+      totalAttempts={posterTry?.iterations || iteration - 1} 
     />
   ) : iteration > MAX_ATTEMPTS ?(
     <GameOverScreenPoster
