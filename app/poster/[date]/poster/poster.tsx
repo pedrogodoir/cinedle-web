@@ -18,15 +18,15 @@ import { PosterGet } from "@/lib/types/posterGet";
 import { PosterGetImage } from "@/lib/types/posterGetImage";
 import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
-  import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
+import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
 
 type PosterProps = {
   date: string;
 };
 
-const MAX_ATTEMPTS = 6+1;
+const MAX_ATTEMPTS = 6;
 
-export default function Poster({ date}: PosterProps) {
+export default function Poster({ date }: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWin, setIsWin] = useState(false);
@@ -34,6 +34,7 @@ export default function Poster({ date}: PosterProps) {
   const [iteration, setIteration] = useState(1);
   const [correctMovieId, setCorrectMovieId] = useState<number | null>(null);
   const [grayFilter, setGrayFilter] = useState(getGrayFilter());
+  
   // Carrega o poster inicial e tentativas anteriores
   useEffect(() => {
     setGrayFilter(true)
@@ -54,7 +55,8 @@ export default function Poster({ date}: PosterProps) {
             {
               params: {
                 date: date,
-                iteration: nextIteration,
+                //  Soma +1 para a API (Estado 1 -> API 2)
+                iteration: nextIteration + 1,
               },
             }
           );
@@ -66,11 +68,11 @@ export default function Poster({ date}: PosterProps) {
             {
               params: {
                 date: date,
-                iteration: 2,
+                iteration: 2, // API espera 2 para a primeira imagem
               },
             }
           );
-          setIteration(2);
+          setIteration(1); 
           const updatedTry = getTryPoster(date);
           setUrlImg(res.data.res.image_url);
         }
@@ -98,7 +100,8 @@ export default function Poster({ date}: PosterProps) {
           params: {
             movie_id: movieId,
             date: date,
-            iteration: iteration,
+            //  Soma +1 para a API na verificação
+            iteration: iteration + 1,
           },
         }
       );
@@ -162,7 +165,6 @@ export default function Poster({ date}: PosterProps) {
           clearTryPoster(date);
           setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");
-     
         }
       }
     } catch (error) {
@@ -174,7 +176,8 @@ export default function Poster({ date}: PosterProps) {
   }; return isWin ? (
     <WinScreenPoster
       movieId={correctMovieId || 0}
-      totalAttempts={posterTry?.iterations || iteration - 1}
+      // Ajuste na prop: como incrementamos antes do render, subtraímos 1 aqui
+      totalAttempts={posterTry?.iterations || iteration - 1} 
     />
   ) : iteration > MAX_ATTEMPTS ?(
     <GameOverScreenPoster
@@ -205,7 +208,7 @@ export default function Poster({ date}: PosterProps) {
       {/* Contador de tentativas com cores */}
       <div className="text-white text-sm mb-2 font-medium">
         <span className={iteration > 4 ? "text-yellow-400" : ""}>
-          Tentativa {Math.min(iteration-1, MAX_ATTEMPTS)} de {MAX_ATTEMPTS-1}
+          Tentativa {Math.min(iteration, MAX_ATTEMPTS)} de {MAX_ATTEMPTS}
         </span>
         {iteration > MAX_ATTEMPTS && (
           <div className="text-red-400 text-xs mt-1">
