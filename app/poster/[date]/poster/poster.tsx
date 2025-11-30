@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import WinScreenPoster from "../winScreen/winScreenPoster";
 import GameOverScreenPoster from "../gameOverScreen/gameOverScreen";
 import { PosterGet } from "@/lib/types/posterGet";
+import { PosterGetImage } from "@/lib/types/posterGetImage";
 import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
   import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
@@ -23,7 +24,7 @@ type PosterProps = {
   date: string;
 };
 
-const MAX_ATTEMPTS = 6;
+const MAX_ATTEMPTS = 6+1;
 
 export default function Poster({ date}: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
@@ -41,7 +42,6 @@ export default function Poster({ date}: PosterProps) {
       try {
         // Verifica se já existem tentativas salvas
         const storedTry = getTryPoster(date);
-
         if (storedTry) {
           // Se já tem tentativas, restaura o estado
           setPosterTry(storedTry);
@@ -49,32 +49,30 @@ export default function Poster({ date}: PosterProps) {
           setIteration(nextIteration);
 
           // Busca a imagem da próxima iteração (após a última tentativa)
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
-                movie_id: -1,
                 date: date,
                 iteration: nextIteration,
               },
             }
           );
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         } else {
           // Se não tem tentativas, busca a primeira imagem
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
                 date: date,
-                iteration: 1,
-                movie_id: -1,
+                iteration: 2,
               },
             }
           );
-          setIteration((prev) => prev + 1);
+          setIteration(2);
           const updatedTry = getTryPoster(date);
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         }
       } catch (error) {
         console.error("Failed to fetch poster:", error);
@@ -94,8 +92,6 @@ export default function Poster({ date}: PosterProps) {
     try {
       const movieId = Number(movie.id);
 
-      setIteration((prev) => prev + 1);
-
       const res = await axios.get<PosterGet>(
         `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
         {
@@ -106,6 +102,7 @@ export default function Poster({ date}: PosterProps) {
           },
         }
       );
+      setIteration((prev) => prev + 1);
 
       const posterGet: PosterGet = res.data;
 
@@ -208,7 +205,7 @@ export default function Poster({ date}: PosterProps) {
       {/* Contador de tentativas com cores */}
       <div className="text-white text-sm mb-2 font-medium">
         <span className={iteration > 4 ? "text-yellow-400" : ""}>
-          Tentativa {Math.min(iteration, MAX_ATTEMPTS)} de {MAX_ATTEMPTS}
+          Tentativa {Math.min(iteration-1, MAX_ATTEMPTS)} de {MAX_ATTEMPTS-1}
         </span>
         {iteration > MAX_ATTEMPTS && (
           <div className="text-red-400 text-xs mt-1">

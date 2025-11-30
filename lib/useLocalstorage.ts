@@ -208,7 +208,7 @@ export function appendTryPoster(movieId: number, date: string) {
     tryPoster.unshift({
       id: movieId, // O ID do filme correto será atualizado quando vencer
       date: date,
-      iterations: 1,
+      iterations: 2,
       movieIds: [movieId],
     });
   }
