@@ -85,7 +85,7 @@ function GameOverScreenPoster({
             {movie?.actors.map((actor) => actor.name).join(", ")}
           </p>
           <p className="text-lg font-bold text-red-400">
-            6 Tentativas foi pouco para você! 😥
+            6 Chances weren't enough for you! 😥
           </p>
         </div>
       </div>

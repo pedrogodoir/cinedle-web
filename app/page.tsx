@@ -67,7 +67,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Button>Dê seu feedback!</Button>
+          <Button>Give some feedback!</Button>
         </a>
       </div>
     </div>
