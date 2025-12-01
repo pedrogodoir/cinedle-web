@@ -18,7 +18,7 @@ interface RulesModalProps {
 export function RulesModal({ isOpen, onClose, mode, colorBlind = false }: RulesModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] bg-zinc-950 rounded-md p-6 border-3 border-zinc-700 max-h-[80vh] overflow-y-auto">
+      <DialogContent className="dropdown-scroll sm:max-w-[700px] bg-zinc-950 rounded-md p-6 border-3 border-zinc-700 max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-white">
             {mode === "classic" ? "📖 Classic Mode - Rules" : "📖 Poster Mode - Rules"}

@@ -57,11 +57,16 @@ export default function Page() {
       </div>
     );
   }
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
-  const [colorBlind, setColorBlind] = useState(getColorBlind());
-  const [grayFilter, setGrayFilter] = useState(getGrayFilter());
+  const [colorBlind, setColorBlind] = useState(false); // Inicializa com false
+  const [grayFilter, setGrayFilter] = useState(false); // Inicializa com false
+
+  // Carrega valores do localStorage após montagem para evitar hydration error
+  useEffect(() => {
+    setColorBlind(getColorBlind());
+    setGrayFilter(getGrayFilter());
+  }, []);
 
   useEffect(() => {
     if (!search) {

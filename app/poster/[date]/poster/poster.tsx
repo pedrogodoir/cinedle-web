@@ -27,15 +27,19 @@ const MAX_ATTEMPTS = 6;
 
 export default function Poster({ date }: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isWin, setIsWin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); const [isWin, setIsWin] = useState(false);
   const [urlImg, setUrlImg] = useState<string>("");
   const [iteration, setIteration] = useState(1);
   const [correctMovieId, setCorrectMovieId] = useState<number | null>(null);
-  const [grayFilter, setGrayFilter] = useState(getGrayFilter());
+  const [grayFilter, setGrayFilter] = useState(false); // Inicializa com false para evitar hydration error
+
+  // Carrega o valor do grayFilter do localStorage após montagem
+  useEffect(() => {
+    setGrayFilter(getGrayFilter());
+  }, []);
+
   // Carrega o poster inicial e tentativas anteriores
   useEffect(() => {
-    setGrayFilter(true)
     const fetchInitialPoster = async () => {
       setIsLoading(true);
       try {
