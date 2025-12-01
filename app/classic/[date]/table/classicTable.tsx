@@ -127,14 +127,14 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
     <WinScreenClassic
       movieId={guesses[0]?.movie.id}
       totalAttempts={guesses.length}
-    />
-  ) : (
+    />) : (
     <div className="flex flex-col flex-1 gap-10 text-center pt-14 pb-40 max-w-full">
       <SearchInput
         guesses={guesses}
         onSubmitGuess={handleSubmitGuess}
         disabled={isLoading}
         showButton={true}
+        currentMode="classic"
       />
       <div className="dropdown-scroll overflow-x-auto max-w-full px-4">
         <Table className="bg-zinc-950 min-w-max">
