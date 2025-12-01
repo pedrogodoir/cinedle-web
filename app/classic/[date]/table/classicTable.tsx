@@ -129,7 +129,7 @@ export default function ClassicTable({ date, colorBlind }: ClassicTableProps) {
       totalAttempts={guesses.length}
     />
   ) : (
-    <div className="flex flex-col flex-1 gap-10 text-center pt-40 pb-40 max-w-full">
+    <div className="flex flex-col flex-1 gap-10 text-center pt-14 pb-40 max-w-full">
       <SearchInput
         guesses={guesses}
         onSubmitGuess={handleSubmitGuess}
