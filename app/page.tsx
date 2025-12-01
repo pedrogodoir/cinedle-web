@@ -19,14 +19,14 @@ export default function Home() {
         <Header />
 
         <div className=" flex items-center justify-center gap-4 max-[500px]:justify-end">
-          <Menu
+          {/* <Menu
             className="bg-white text-black rounded-full p-2  hover:bg-red-500 transition-colors cursor-pointer w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"
             onClick={() => setIsModalOpen(true)}
-          />
+          /> */}
         </div>
       </header>
 
-      <Modal
+      {/* <Modal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
@@ -37,7 +37,7 @@ export default function Home() {
         setColorBlind={() => {}}
       >
         <p></p>
-      </Modal>
+      </Modal> */}
       <div className="flex items-center justify-items-center flex-1 gap-10 text-center max-[500px]:flex-col flex-row ">
         <Link
           href={hrefClassic}
