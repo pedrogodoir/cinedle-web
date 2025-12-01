@@ -10,11 +10,13 @@ export function SearchInput({
   onSubmitGuess,
   disabled = false,
   showButton = true,
+  currentMode = "classic",
 }: {
   guesses: any[];
   onSubmitGuess: (movie: MovieResult) => void;
   disabled?: boolean;
   showButton?: boolean;
+  currentMode?: "classic" | "poster";
 }) {
   const [search, setSearch] = React.useState("");
   const [results, setResults] = React.useState<MovieResult[]>([]);
@@ -105,11 +107,16 @@ export function SearchInput({
               setSearch("");
               setHighlightedIndex(-1);
             }, 200);
-          }}
-          onKeyDown={(e) => {
+          }} onKeyDown={(e) => {
             if (e.key === "Enter" && !disabled) {
               if (selectedMovie) {
-                if (!guesses.some((guess) => guess.movie.id === Number(selectedMovie.id))) {
+                // Verifica se o filme já foi tentado antes de submeter
+                const movieId = Number(selectedMovie.id);
+                const alreadyGuessed = guesses.length > 0 && typeof guesses[0] === "number"
+                  ? guesses.includes(movieId) // Modo Poster: guesses é number[]
+                  : guesses.some((guess) => guess.movie?.id === movieId); // Modo Classic: guesses é Guess[]
+
+                if (!alreadyGuessed) {
                   handleSubmit();
                 }
               } else if (validResults.length > 0) {
@@ -163,13 +170,16 @@ export function SearchInput({
             ))}
           </div>
         )}
-      </div>
-
-      {showButton && (
+      </div>      {showButton && (
         <Button
           onClick={handleSubmit}
           disabled={!selectedMovie || isLoading || disabled}
-          className="bg-red-500 text-2xl cursor-pointer hover:scale-105 transition-transform disabled:bg-zinc-600 disabled:cursor-not-allowed"
+          className={cn(
+            "text-2xl cursor-pointer transition-all disabled:bg-zinc-600 disabled:cursor-not-allowed",
+            "bg-zinc-50 hover:scale-105",
+            currentMode === "classic" && "hover:bg-red-500",
+            currentMode === "poster" && "hover:bg-blue-500"
+          )}
           size="icon"
         >
           {isLoading ? (

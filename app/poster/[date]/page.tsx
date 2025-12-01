@@ -1,12 +1,13 @@
 "use client";
 import { Header } from "@/components/ui/header";
 import { History } from "@/components/ui/history";
-import { Modal } from "@/components/ui/Modal";
+import { RulesModal } from "@/components/ui/RulesModal";
 import { HistoryItem } from "@/lib/types/historyItem";
 import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
-import { getColorBlind, getPosterHistory, getLoseHistoryPoster, getGrayFilter} from "@/lib/useLocalstorage";
+import { DayNavigation } from "@/components/ui/DayNavigation";
+import { getColorBlind, getPosterHistory, getLoseHistoryPoster, getGrayFilter } from "@/lib/useLocalstorage";
 import axios from "axios";
-import { Menu } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import ClassicTable from "./poster/poster";
@@ -14,6 +15,7 @@ import WinScreenPoster from "./winScreen/winScreenPoster";
 import GameOverScreenPoster from "./gameOverScreen/gameOverScreen";
 import Poster from "./poster/poster";
 import { validateGameDate } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type MovieResult = {
   id: string;
@@ -31,7 +33,7 @@ function dateExistsInHistory({
 }
 
 export default function Page() {
-  const router = useRouter(); 
+  const router = useRouter();
   const params = useParams<{ date: string }>();
 
   // Calcula a data correta
@@ -55,11 +57,16 @@ export default function Page() {
       </div>
     );
   }
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); const [search, setSearch] = useState("");
   const [results, setResults] = useState<MovieResult[]>([]);
-  const [colorBlind, setColorBlind] = useState(getColorBlind());
-  const [grayFilter, setGrayFilter] = useState(getGrayFilter());
+  const [colorBlind, setColorBlind] = useState(false); // Inicializa com false
+  const [grayFilter, setGrayFilter] = useState(false); // Inicializa com false
+
+  // Carrega valores do localStorage após montagem para evitar hydration error
+  useEffect(() => {
+    setColorBlind(getColorBlind());
+    setGrayFilter(getGrayFilter());
+  }, []);
 
   useEffect(() => {
     if (!search) {
@@ -86,40 +93,40 @@ export default function Page() {
   const posterHistory = getPosterHistory();
   const h = posterHistory.find((item) => item.date.split("T")[0] === date);
 
-  if(dateExistsInHistory({ date, history: posterHistory }) && (h?.result=="win" || h?.result=="lose") && isModalOpen) setIsModalOpen(false)
+  if (dateExistsInHistory({ date, history: posterHistory }) && (h?.result == "win" || h?.result == "lose") && isModalOpen) setIsModalOpen(false)
 
   return (
     <div className="flex flex-col items-center justify-items-center bg-black ">
-      <div className="bg-[url(/bg-classic.webp)] bg-center bg-cover bg-no-repeat w-full min-h-screen bg-black flex flex-col items-center justify-start px-4">
-        <header className="w-screen md:w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
-          <div></div>          <Header />
-          <div className="flex items-center justify-center gap-4 max-[500px]:gap-2 ">
-            <History date={date} currentMode="poster" />
-            {/* <Menu
-              className="bg-white text-black rounded-full p-2 hover:bg-red-500 transition-colors cursor-pointer w-10 h-10 max-[500px]:w-8 max-[500px]:h-8 max-[350px]:h-6 max-[350px]:w-6"
-              onClick={() => setIsModalOpen(true)}
-            /> */}
-          </div>
-        </header>
-          {/* {!dateExistsInHistory({ date, history: posterHistory }) ? (<GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />) : <></>} */}
+      <div className="bg-[url(/bg-classic.webp)] bg-center bg-cover bg-no-repeat w-full min-h-screen bg-black flex flex-col items-center justify-start px-4">        <header className="w-screen md:w-2xl py-4 grid grid-cols-3 items-center gap-6 justify-end text-white text-5xl font-extrabold px-4">
+        {/* Day Navigation */}
+        <div className="flex items-center justify-center">
+          <DayNavigation currentDate={date} currentMode="poster" />
+        </div>
 
-        {/*  MODAL PARA NOVAS CONFIGURAÇÕES */}
-        {/* <Modal
+        <Header />        <div className="flex items-center justify-center gap-4 max-[500px]:gap-2 ">
+          <History date={date} currentMode="poster" />
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-zinc-50 cursor-pointer text-black hover:bg-blue-500 transition-colors h-10 px-4 max-[500px]:px-3 max-[500px]:h-8"
+          >
+            <BookOpen className="w-5 h-5 max-[500px]:w-4 max-[500px]:h-4 mr-2 max-[500px]:mr-1" />
+            <span className="font-semibold text-sm max-[500px]:text-xs">Rules</span>
+          </Button>
+        </div>
+      </header>{/* {!dateExistsInHistory({ date, history: posterHistory }) ? (<GrayFilterSwitch grayFilter={grayFilter} setGrayFilter={setGrayFilter} />) : <></>} */}
+
+        {/*  Rules Modal */}
+        <RulesModal
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-          }}
-          colorBlind={colorBlind}
-          grayFilter={grayFilter}
-          setGrayFilter={setGrayFilter}
-          setColorBlind={setColorBlind}
-        /> */}
+          onClose={() => setIsModalOpen(false)}
+          mode="poster"
+        />
 
-        {dateExistsInHistory({ date, history: posterHistory }) && h?.result=="win" ? (
+        {dateExistsInHistory({ date, history: posterHistory }) && h?.result == "win" ? (
 
           <WinScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts} />
 
-        ) : dateExistsInHistory({ date, history: posterHistory }) && h?.result=="lose" ? (
+        ) : dateExistsInHistory({ date, history: posterHistory }) && h?.result == "lose" ? (
           <GameOverScreenPoster movieId={h?.id} totalAttempts={h?.totalAttempts}
           />
         ) : (
