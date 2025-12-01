@@ -10,6 +10,7 @@ import {
 import { getHistoryClassic, getPosterHistory, getLoseHistoryPoster } from "@/lib/useLocalstorage";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendarHistory";
+import { cn } from "@/lib/utils";
 
 const firstDay = new Date("2025-10-10");
 
@@ -33,11 +34,13 @@ export function History({ date, currentMode = "classic"}: HistoryProps) {
     <div>
       <Dialog>
         <DialogTrigger
-          className="h-full rounded-full flex justify-between items-center cursor-pointer py-2 px-1"
+          className={cn("h-full rounded-full flex justify-between items-center cursor-pointer py-2 px-1 bg-zinc-50",
+            currentMode === "classic" ? " hover:bg-red-500": currentMode === "poster" ? " hover:bg-blue-500": ""
+          )}
           asChild
         >
           <Button variant="default">
-            <CalendarIcon className="hover:bg-gray-200 transition-colors w-6 h-6 max-[500px]:w-4 max-[500px]:h-4 max-[350px]:h-2 max-[350px]:w-2" />
+            <CalendarIcon className="hover:bg-amber-300 transition-colors w-6 h-6 max-[500px]:w-4 max-[500px]:h-4 max-[350px]:h-2 max-[350px]:w-2" />
           </Button>
         </DialogTrigger>        <DialogContent className="sm:max-w-[425px] bg-zinc-950 rounded-md p-4 border-3 border-zinc-700">
           <DialogHeader>
