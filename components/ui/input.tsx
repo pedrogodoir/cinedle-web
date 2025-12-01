@@ -105,11 +105,16 @@ export function SearchInput({
               setSearch("");
               setHighlightedIndex(-1);
             }, 200);
-          }}
-          onKeyDown={(e) => {
+          }} onKeyDown={(e) => {
             if (e.key === "Enter" && !disabled) {
               if (selectedMovie) {
-                if (!guesses.some((guess) => guess.movie.id === Number(selectedMovie.id))) {
+                // Verifica se o filme já foi tentado antes de submeter
+                const movieId = Number(selectedMovie.id);
+                const alreadyGuessed = guesses.length > 0 && typeof guesses[0] === "number"
+                  ? guesses.includes(movieId) // Modo Poster: guesses é number[]
+                  : guesses.some((guess) => guess.movie?.id === movieId); // Modo Classic: guesses é Guess[]
+
+                if (!alreadyGuessed) {
                   handleSubmit();
                 }
               } else if (validResults.length > 0) {
