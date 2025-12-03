@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import WinScreenPoster from "../winScreen/winScreenPoster";
 import GameOverScreenPoster from "../gameOverScreen/gameOverScreen";
 import { PosterGet } from "@/lib/types/posterGet";
+import { PosterGetImage } from "@/lib/types/posterGetImage";
 import { PosterGame } from "@/lib/types/posterGame";
 import { PosterTry } from "@/lib/types/posterTry";
 import GrayFilterSwitch from "@/components/ui/GrayFilterSwitch"
@@ -27,16 +28,12 @@ const MAX_ATTEMPTS = 6;
 
 export default function Poster({ date }: PosterProps) {
   const [posterTry, setPosterTry] = useState<PosterTry | null>(null);
-  const [isLoading, setIsLoading] = useState(false); const [isWin, setIsWin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isWin, setIsWin] = useState(false);
   const [urlImg, setUrlImg] = useState<string>("");
   const [iteration, setIteration] = useState(1);
   const [correctMovieId, setCorrectMovieId] = useState<number | null>(null);
-  const [grayFilter, setGrayFilter] = useState(false); // Inicializa com false para evitar hydration error
-
-  // Carrega o valor do grayFilter do localStorage após montagem
-  useEffect(() => {
-    setGrayFilter(getGrayFilter());
-  }, []);
+  const [grayFilter, setGrayFilter] = useState(true); // Inicializa com true para evitar hydration error
 
   // Carrega o poster inicial e tentativas anteriores
   useEffect(() => {
@@ -45,7 +42,6 @@ export default function Poster({ date }: PosterProps) {
       try {
         // Verifica se já existem tentativas salvas
         const storedTry = getTryPoster(date);
-
         if (storedTry) {
           // Se já tem tentativas, restaura o estado
           setPosterTry(storedTry);
@@ -53,32 +49,31 @@ export default function Poster({ date }: PosterProps) {
           setIteration(nextIteration);
 
           // Busca a imagem da próxima iteração (após a última tentativa)
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
-                movie_id: -1,
                 date: date,
-                iteration: nextIteration,
+                //  Soma +1 para a API (Estado 1 -> API 2)
+                iteration: nextIteration + 1,
               },
             }
           );
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         } else {
           // Se não tem tentativas, busca a primeira imagem
-          const res = await axios.get<PosterGet>(
-            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
+          const res = await axios.get<PosterGetImage>(
+            `${process.env.NEXT_PUBLIC_API_URL}/poster-games/image`,
             {
               params: {
                 date: date,
-                iteration: 1,
-                movie_id: -1,
+                iteration: 2, // API espera 2 para a primeira imagem
               },
             }
           );
-          setIteration((prev) => prev + 1);
+          setIteration(1); 
           const updatedTry = getTryPoster(date);
-          setUrlImg(res.data.res.next_image);
+          setUrlImg(res.data.res.image_url);
         }
       } catch (error) {
         console.error("Failed to fetch poster:", error);
@@ -98,18 +93,18 @@ export default function Poster({ date }: PosterProps) {
     try {
       const movieId = Number(movie.id);
 
-      setIteration((prev) => prev + 1);
-
       const res = await axios.get<PosterGet>(
         `${process.env.NEXT_PUBLIC_API_URL}/poster-games/guess`,
         {
           params: {
             movie_id: movieId,
             date: date,
-            iteration: iteration,
+            //  Soma +1 para a API na verificação
+            iteration: iteration + 1,
           },
         }
       );
+      setIteration((prev) => prev + 1);
 
       const posterGet: PosterGet = res.data;
 
@@ -148,7 +143,7 @@ export default function Poster({ date }: PosterProps) {
         if (iteration >= MAX_ATTEMPTS) {
           // TODO: Implementar tela de derrota
           const fail_sound = new Audio("/sounds/fail_sound.mp3");
-          fail_sound.play();
+          fail_sound.play();   
           const res = await axios.get<PosterGame>(
             `${process.env.NEXT_PUBLIC_API_URL}/poster-games`,
             {
@@ -169,7 +164,6 @@ export default function Poster({ date }: PosterProps) {
           clearTryPoster(date);
           setCorrectMovieId(res.data.res.movie_id);
           console.log("Máximo de tentativas atingido!");
-
         }
       }
     } catch (error) {
@@ -181,9 +175,10 @@ export default function Poster({ date }: PosterProps) {
   }; return isWin ? (
     <WinScreenPoster
       movieId={correctMovieId || 0}
-      totalAttempts={posterTry?.iterations || iteration - 1}
+      // Ajuste na prop: como incrementamos antes do render, subtraímos 1 aqui
+      totalAttempts={posterTry?.iterations || iteration - 1} 
     />
-  ) : iteration > MAX_ATTEMPTS ? (
+  ) : iteration > MAX_ATTEMPTS ?(
     <GameOverScreenPoster
       movieId={correctMovieId || 0}
       totalAttempts={posterTry?.iterations || iteration - 1}
@@ -196,7 +191,7 @@ export default function Poster({ date }: PosterProps) {
       <div className="flex items-center justify-center p-2 bg-zinc-950 bg-opacity-50 border-3 border-zinc-700 rounded-lg shadow-lg max-w-md mx-auto transition-all duration-300">
         {urlImg ? (
           <img
-            style={grayFilter ? { filter: "grayscale(100%)" } : {}}
+            style={ grayFilter ? { filter: "grayscale(100%)" }: {}}
             src={urlImg}
             width="300"
             alt="Movie poster"
@@ -238,7 +233,9 @@ export default function Poster({ date }: PosterProps) {
             ))}
           </div>
         </div>
-      )}      <SearchInput
+      )}
+
+      <SearchInput
         guesses={posterTry?.movieIds || []}
         onSubmitGuess={handleSubmitGuess}
         disabled={isLoading || iteration > MAX_ATTEMPTS}
